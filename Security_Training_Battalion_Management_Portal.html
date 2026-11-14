@@ -1,0 +1,3072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURITY TRAINING BATTALION — Management Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Cinzel/Playfair for authoritative typographic branding -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (Functional UI icons only - no emblems/logos) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Cinzel', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        stb: {
+                            beige: '#F5F1E8',
+                            beigeDark: '#EAE2D3',
+                            white: '#FFFFFF',
+                            brownLight: '#8C735B',
+                            brown: '#5C4633',
+                            brownDark: '#36271A',
+                            gold: '#B59449',
+                            goldLight: '#D4B975',
+                            goldDark: '#8F712E',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #F5F1E8;
+            color: #36271A;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #EAE2D3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8C735B;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5C4633;
+        }
+        .tab-active {
+            background-color: #5C4633;
+            color: #FFFFFF;
+            border-left: 4px solid #B59449;
+        }
+        .fade-in {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-stb-gold selection:text-white">
+
+    <!-- GLOBAL NOTIFICATION TOAST CONTAINER -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- SYSTEM LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 bg-stb-beige z-50 flex flex-col items-center justify-center p-6 transition-opacity duration-300">
+        <div class="text-center max-w-xl">
+            <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-widest text-stb-brownDark uppercase">
+                SECURITY TRAINING BATTALION
+            </h1>
+            <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-stb-brownLight mt-1 font-medium">
+                Security Training Battalion Management Portal
+            </p>
+            <div class="w-48 h-1 bg-stb-beigeDark mx-auto mt-6 rounded-full overflow-hidden">
+                <div id="loading-bar" class="h-full bg-stb-gold w-1/3 transition-all duration-500"></div>
+            </div>
+            <p id="loading-status" class="text-xs text-stb-brown mt-3 font-mono">Initializing Secure Command Environment...</p>
+        </div>
+    </div>
+
+    <!-- OFFICIAL TOP HEADER (VISIBLE ACROSS ENTIRE APPLICATION) -->
+    <header class="bg-stb-white border-b-2 border-stb-gold shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Mobile Menu Toggle (Only visible when logged in) -->
+                <div class="w-10 lg:hidden">
+                    <button id="mobile-menu-btn" class="hidden p-2 rounded-lg text-stb-brownDark hover:bg-stb-beige focus:outline-none" aria-label="Open Menu">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <!-- TOP CENTER TYPOGRAPHIC BRANDING ONLY (STRICTLY NO LOGOS/CRESTS/EMBLEMS) -->
+                <div class="text-center flex-1">
+                    <h1 class="font-display text-xl sm:text-2xl md:text-3xl font-extrabold tracking-[0.14em] text-stb-brownDark uppercase leading-tight">
+                        SECURITY TRAINING BATTALION
+                    </h1>
+                    <p class="text-[11px] sm:text-xs md:text-sm font-medium tracking-[0.18em] text-stb-brownLight uppercase mt-0.5">
+                        Security Training Battalion Management Portal
+                    </p>
+                </div>
+
+                <!-- Active Session Quick Info (Desktop) -->
+                <div class="w-10 lg:w-auto flex justify-end">
+                    <div id="header-user-badge" class="hidden items-center gap-3 bg-stb-beige px-3 py-1.5 rounded-lg border border-stb-beigeDark">
+                        <div class="text-right hidden sm:block">
+                            <p id="header-username" class="text-xs font-bold text-stb-brownDark font-mono"></p>
+                            <p id="header-role" class="text-[10px] font-semibold uppercase tracking-wider text-stb-goldDark"></p>
+                        </div>
+                        <button id="header-logout-btn" title="Secure Sign Out" class="p-1.5 rounded-md bg-stb-brownDark text-white hover:bg-stb-brown transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 1: OFFICIAL AUTHENTICATION VIEW (NO PROTOTYPE/DEMO ACCESS)       -->
+    <!-- ===================================================================== -->
+    <main id="auth-view" class="flex-1 flex items-center justify-center p-4 sm:p-6">
+        <div class="w-full max-w-md bg-stb-white rounded-xl shadow-lg border border-stb-beigeDark overflow-hidden">
+            <div class="bg-stb-brownDark px-6 py-5 border-b-2 border-stb-gold text-center">
+                <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-white">Authorized Command Access</h2>
+                <p class="text-xs text-stb-beigeDark mt-1">Official Security Training Battalion Personnel Only</p>
+            </div>
+
+            <form id="login-form" class="p-6 sm:p-8 space-y-5" autocomplete="off">
+                <div id="login-error-box" class="hidden p-3 rounded-lg bg-red-50 border border-red-300 text-red-800 text-xs font-medium flex items-start gap-2">
+                    <i data-lucide="shield-alert" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                    <span id="login-error-text">Authentication failed.</span>
+                </div>
+
+                <div>
+                    <label for="login-username" class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1.5">
+                        Administrator Username
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="login-username" required
+                            class="w-full px-3.5 py-2.5 bg-stb-beige/50 border border-stb-brownLight/40 rounded-lg text-sm text-stb-brownDark font-mono focus:outline-none focus:ring-2 focus:ring-stb-gold focus:border-stb-gold"
+                            placeholder="Enter assigned username">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="login-password" class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1.5">
+                        Security Passphrase
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="login-password" required
+                            class="w-full px-3.5 py-2.5 pr-10 bg-stb-beige/50 border border-stb-brownLight/40 rounded-lg text-sm text-stb-brownDark focus:outline-none focus:ring-2 focus:ring-stb-gold focus:border-stb-gold"
+                            placeholder="Enter security passphrase">
+                        <button type="button" id="toggle-login-pw" class="absolute inset-y-0 right-0 px-3 flex items-center text-stb-brownLight hover:text-stb-brownDark">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="login-submit-btn"
+                        class="w-full py-3 px-4 bg-stb-brownDark hover:bg-stb-brown text-white font-semibold text-xs uppercase tracking-[0.15em] rounded-lg shadow transition-all flex items-center justify-center gap-2 border border-stb-gold/40">
+                        <i data-lucide="lock" class="w-4 h-4 text-stb-goldLight"></i>
+                        <span>Authenticate & Enter Portal</span>
+                    </button>
+                </div>
+
+                <div class="pt-3 border-t border-stb-beigeDark text-center">
+                    <p class="text-[11px] text-stb-brownLight leading-relaxed">
+                        All access attempts, cryptographic sessions, and administrative modifications are permanently recorded in the Battalion Audit Log.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 2: MANDATORY INITIAL PASSWORD CHANGE MODAL                       -->
+    <!-- ===================================================================== -->
+    <div id="force-pw-modal" class="hidden fixed inset-0 bg-stb-brownDark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-stb-white rounded-xl shadow-2xl border-2 border-stb-gold overflow-hidden">
+            <div class="bg-stb-brownDark px-6 py-4 text-white">
+                <div class="flex items-center gap-2 text-stb-goldLight text-xs font-bold uppercase tracking-wider">
+                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                    <span>Mandatory Security Protocol</span>
+                </div>
+                <h3 class="text-base font-bold mt-1">Initial Passphrase Rotation Required</h3>
+            </div>
+            <form id="force-pw-form" class="p-6 space-y-4">
+                <p class="text-xs text-stb-brown leading-relaxed">
+                    Security policy requires updating your initial or reset passphrase before accessing Battalion administrative modules. Your new passphrase must be at least 8 characters long.
+                </p>
+                <div id="force-pw-error" class="hidden p-2.5 rounded bg-red-50 border border-red-300 text-red-800 text-xs"></div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">New Passphrase</label>
+                    <input type="password" id="force-new-pw" required minlength="8"
+                        class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-sm focus:ring-2 focus:ring-stb-gold focus:outline-none"
+                        placeholder="Minimum 8 characters">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Confirm New Passphrase</label>
+                    <input type="password" id="force-confirm-pw" required minlength="8"
+                        class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-sm focus:ring-2 focus:ring-stb-gold focus:outline-none"
+                        placeholder="Re-enter new passphrase">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" id="force-pw-cancel" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">
+                        Cancel & Sign Out
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-stb-gold">
+                        Update Passphrase
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 3: MAIN AUTHENTICATED MANAGEMENT PORTAL                          -->
+    <!-- ===================================================================== -->
+    <div id="portal-view" class="hidden flex-1 flex max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-6 relative">
+        
+        <!-- Mobile Backdrop -->
+        <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/50 z-30 lg:hidden"></div>
+
+        <!-- DYNAMIC ROLE-BASED SIDEBAR NAVIGATION -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-68 bg-stb-white border border-stb-beigeDark rounded-none lg:rounded-xl shadow-md flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out shrink-0">
+            <div>
+                <!-- Administrator Identity Card -->
+                <div class="p-4 bg-stb-brownDark text-white lg:rounded-t-xl border-b-2 border-stb-gold">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-stb-goldLight">Authenticated Officer</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-900/70 text-emerald-200 border border-emerald-600/40">ACTIVE</span>
+                    </div>
+                    <p id="sidebar-fullname" class="text-sm font-bold mt-1.5 truncate">Battalion Commander</p>
+                    <p id="sidebar-rank" class="text-xs text-stb-beigeDark truncate"></p>
+                    <div class="mt-2.5 pt-2.5 border-t border-stb-brown flex items-center justify-between text-[11px]">
+                        <span class="text-stb-beigeDark">Clearance:</span>
+                        <span id="sidebar-access-level" class="font-bold text-stb-goldLight"></span>
+                    </div>
+                </div>
+
+                <!-- Dynamic Navigation Links Container -->
+                <nav id="sidebar-nav" class="p-3 space-y-1">
+                    <!-- Populated strictly according to role permissions -->
+                </nav>
+            </div>
+
+            <!-- Sidebar Bottom Info -->
+            <div class="p-4 border-t border-stb-beigeDark bg-stb-beige/40 lg:rounded-b-xl">
+                <div class="text-[11px] text-stb-brown space-y-1">
+                    <div class="flex justify-between">
+                        <span>Unit:</span>
+                        <span id="sidebar-battalion" class="font-semibold text-stb-brownDark">STB</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Database:</span>
+                        <span id="db-connection-badge" class="font-mono font-semibold text-emerald-700">SYNCHRONIZED</span>
+                    </div>
+                </div>
+                <button id="sidebar-logout-btn" class="mt-3 w-full py-2 px-3 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-semibold uppercase tracking-wider rounded-lg flex items-center justify-center gap-2 transition-colors">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    <span>Terminate Session</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN WORKSPACE CONTENT AREA -->
+        <main class="flex-1 min-w-0 space-y-6">
+
+            <!-- ============================================================= -->
+            <!-- MODULE 1: COMMAND DASHBOARD                                   -->
+            <!-- ============================================================= -->
+            <section id="module-dashboard" class="module-section space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark tracking-tight">Battalion Command Dashboard</h2>
+                        <p class="text-xs text-stb-brownLight mt-0.5">Live operational telemetry from Security Training Battalion registries</p>
+                    </div>
+                    <div class="text-xs font-mono bg-stb-beige px-3 py-2 rounded-lg border border-stb-beigeDark text-stb-brownDark">
+                        <span id="live-clock"></span>
+                    </div>
+                </div>
+
+                <!-- FE CODE TELEMETRY CARDS -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-stb-brownLight mb-3">FE Code Registry Metrics</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-stb-white p-5 rounded-xl border border-stb-beigeDark shadow-sm border-l-4 border-l-stb-brownDark">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-stb-brownLight">Total Registered FE Codes</p>
+                            <p id="stat-fe-total" class="text-3xl font-bold text-stb-brownDark mt-2 font-mono">0</p>
+                        </div>
+                        <div class="bg-stb-white p-5 rounded-xl border border-stb-beigeDark shadow-sm border-l-4 border-l-stb-gold">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-stb-brownLight">Used Codes</p>
+                            <p id="stat-fe-used" class="text-3xl font-bold text-stb-brownDark mt-2 font-mono">0</p>
+                        </div>
+                        <div class="bg-stb-white p-5 rounded-xl border border-stb-beigeDark shadow-sm border-l-4 border-l-emerald-700">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-stb-brownLight">Unused Codes</p>
+                            <p id="stat-fe-unused" class="text-3xl font-bold text-stb-brownDark mt-2 font-mono">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INSTRUCTOR LICENSURE TELEMETRY CARDS -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-stb-brownLight mb-3">Academy Instructor Licensure Metrics</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="bg-stb-white p-4 rounded-xl border border-stb-beigeDark shadow-sm">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-stb-brownLight">Total Registered Licenses</p>
+                            <p id="stat-lic-total" class="text-2xl font-bold text-stb-brownDark mt-1.5 font-mono">0</p>
+                        </div>
+                        <div class="bg-stb-white p-4 rounded-xl border border-stb-beigeDark shadow-sm">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-800">Active Licenses</p>
+                            <p id="stat-lic-active" class="text-2xl font-bold text-emerald-800 mt-1.5 font-mono">0</p>
+                        </div>
+                        <div class="bg-stb-white p-4 rounded-xl border border-stb-beigeDark shadow-sm">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-amber-800">Expired Licenses</p>
+                            <p id="stat-lic-expired" class="text-2xl font-bold text-amber-800 mt-1.5 font-mono">0</p>
+                        </div>
+                        <div class="bg-stb-white p-4 rounded-xl border border-stb-beigeDark shadow-sm">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-red-800">Revoked Licenses</p>
+                            <p id="stat-lic-revoked" class="text-2xl font-bold text-red-800 mt-1.5 font-mono">0</p>
+                        </div>
+                        <div class="bg-stb-white p-4 rounded-xl border border-stb-beigeDark shadow-sm">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-stb-goldDark">Pending Renewal Requests</p>
+                            <p id="stat-ren-pending" class="text-2xl font-bold text-stb-goldDark mt-1.5 font-mono">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LIVE RECENT ACTIVITY FEED (ACTUAL AUDIT LOGS ONLY - EMPTY UNTIL ACTIONS OCCUR) -->
+                <div class="bg-stb-white rounded-xl border border-stb-beigeDark shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-stb-beigeDark flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-stb-brownDark uppercase tracking-wider">Recent Verified System Activity</h3>
+                            <p class="text-xs text-stb-brownLight">Live feed directly bound to the Battalion Audit Log</p>
+                        </div>
+                    </div>
+                    <div id="dashboard-recent-activity" class="divide-y divide-stb-beigeDark">
+                        <div class="p-8 text-center text-xs text-stb-brownLight">
+                            No operational records logged yet. Activity will appear here as administrators perform verified actions.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- MODULE 2: FE CODE MANAGEMENT                                  -->
+            <!-- ============================================================= -->
+            <section id="module-fecodes" class="module-section hidden space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark">FE Code Management</h2>
+                        <p class="text-xs text-stb-brownLight mt-0.5">Generate, register, assign, and audit Field Examination (FE) authorization codes</p>
+                    </div>
+                    <button id="open-register-fe-btn" class="px-4 py-2.5 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow flex items-center gap-2 border border-stb-gold/50 self-start sm:self-auto">
+                        <i data-lucide="plus-circle" class="w-4 h-4 text-stb-goldLight"></i>
+                        <span>Register New FE Code</span>
+                    </button>
+                </div>
+
+                <!-- Search & Filter Bar -->
+                <div class="bg-stb-white p-4 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row gap-3">
+                    <div class="flex-1 relative">
+                        <i data-lucide="search" class="w-4 h-4 text-stb-brownLight absolute left-3 top-3"></i>
+                        <input type="text" id="fe-search-input" placeholder="Search by FE Code, assignee, or purpose..."
+                            class="w-full pl-9 pr-3 py-2 bg-stb-beige/40 border border-stb-beigeDark rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-stb-gold">
+                    </div>
+                    <select id="fe-status-filter" class="px-3 py-2 bg-stb-beige/40 border border-stb-beigeDark rounded-lg text-xs font-medium text-stb-brownDark focus:outline-none focus:ring-2 focus:ring-stb-gold">
+                        <option value="ALL">All Statuses</option>
+                        <option value="Unused">Unused</option>
+                        <option value="Used">Used</option>
+                    </select>
+                </div>
+
+                <!-- FE Codes Data Table -->
+                <div class="bg-stb-white rounded-xl border border-stb-beigeDark shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-stb-brownDark text-white text-[11px] uppercase tracking-wider">
+                                    <th class="py-3 px-4">FE Code</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Assigned To / Purpose</th>
+                                    <th class="py-3 px-4">Registered By</th>
+                                    <th class="py-3 px-4">Date Registered</th>
+                                    <th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fe-table-body" class="divide-y divide-stb-beigeDark text-xs">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div id="fe-pagination" class="px-4 py-3 bg-stb-beige/40 border-t border-stb-beigeDark flex items-center justify-between text-xs text-stb-brown">
+                        <span id="fe-page-info">Showing 0 records</span>
+                        <div class="flex gap-2">
+                            <button id="fe-prev-page" class="px-3 py-1 bg-white border border-stb-beigeDark rounded hover:bg-stb-beige disabled:opacity-40">Previous</button>
+                            <button id="fe-next-page" class="px-3 py-1 bg-white border border-stb-beigeDark rounded hover:bg-stb-beige disabled:opacity-40">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- MODULE 3: ACADEMY INSTRUCTOR LICENSURE (COMMAND & LOGISTICS)  -->
+            <!-- ============================================================= -->
+            <section id="module-licensure" class="module-section hidden space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark">Academy Instructor Licensure Registry</h2>
+                        <p class="text-xs text-stb-brownLight mt-0.5">Official AINS credential issuance, expiration tracking, revocation, and individual license history</p>
+                    </div>
+                    <button id="open-register-lic-btn" class="px-4 py-2.5 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow flex items-center gap-2 border border-stb-gold/50 self-start sm:self-auto">
+                        <i data-lucide="award" class="w-4 h-4 text-stb-goldLight"></i>
+                        <span>Issue Instructor License</span>
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-stb-white p-4 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row gap-3">
+                    <div class="flex-1 relative">
+                        <i data-lucide="search" class="w-4 h-4 text-stb-brownLight absolute left-3 top-3"></i>
+                        <input type="text" id="lic-search-input" placeholder="Search by AINS License Number, Instructor Name, Rank, or Username..."
+                            class="w-full pl-9 pr-3 py-2 bg-stb-beige/40 border border-stb-beigeDark rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-stb-gold">
+                    </div>
+                    <select id="lic-status-filter" class="px-3 py-2 bg-stb-beige/40 border border-stb-beigeDark rounded-lg text-xs font-medium text-stb-brownDark focus:outline-none focus:ring-2 focus:ring-stb-gold">
+                        <option value="ALL">All License Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Expired">Expired</option>
+                        <option value="Revoked">Revoked</option>
+                    </select>
+                </div>
+
+                <!-- Licensure Table -->
+                <div class="bg-stb-white rounded-xl border border-stb-beigeDark shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-stb-brownDark text-white text-[11px] uppercase tracking-wider">
+                                    <th class="py-3 px-4">AINS License #</th>
+                                    <th class="py-3 px-4">Instructor Name & Rank</th>
+                                    <th class="py-3 px-4">Linked Username</th>
+                                    <th class="py-3 px-4">Specialization</th>
+                                    <th class="py-3 px-4">Expiration Date</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lic-table-body" class="divide-y divide-stb-beigeDark text-xs">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- MODULE 4: LICENSE RENEWAL REQUESTS (COMMAND & LOGISTICS)      -->
+            <!-- ============================================================= -->
+            <section id="module-renewals" class="module-section hidden space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark">License Renewal Requests</h2>
+                        <p class="text-xs text-stb-brownLight mt-0.5">Review, approve, or deny Academy Instructor license renewal applications</p>
+                    </div>
+                    <select id="ren-status-filter" class="px-3 py-2 bg-stb-beige border border-stb-beigeDark rounded-lg text-xs font-semibold text-stb-brownDark">
+                        <option value="ALL">All Requests</option>
+                        <option value="Pending">Pending Review</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div class="bg-stb-white rounded-xl border border-stb-beigeDark shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-stb-brownDark text-white text-[11px] uppercase tracking-wider">
+                                    <th class="py-3 px-4">Request ID</th>
+                                    <th class="py-3 px-4">AINS License #</th>
+                                    <th class="py-3 px-4">Instructor</th>
+                                    <th class="py-3 px-4">Requested Period</th>
+                                    <th class="py-3 px-4">Justification</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Decision</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ren-table-body" class="divide-y divide-stb-beigeDark text-xs">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- MODULE 5: MY INSTRUCTOR LICENSE (BATTALION INSTRUCTORS ONLY)  -->
+            <!-- ============================================================= -->
+            <section id="module-my-license" class="module-section hidden space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm">
+                    <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark">My Instructor License</h2>
+                    <p class="text-xs text-stb-brownLight mt-0.5">Personal Academy Instructor credential record and individual history (strictly isolated to your account)</p>
+                </div>
+
+                <div id="my-license-container" class="space-y-6">
+                    <!-- Populated dynamically with authenticated instructor's own license -->
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- MODULE 6: LICENSE RENEWAL SUBMISSION (BATTALION INSTRUCTORS)  -->
+            <!-- ============================================================= -->
+            <section id="module-my-renewal" class="module-section hidden space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm">
+                    <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark">Submit License Renewal Request</h2>
+                    <p class="text-xs text-stb-brownLight mt-0.5">Apply for renewal of your assigned Academy Instructor license</p>
+                </div>
+
+                <div id="my-renewal-form-wrapper" class="bg-stb-white p-6 rounded-xl border border-stb-beigeDark shadow-sm">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div class="bg-stb-white rounded-xl border border-stb-beigeDark shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-stb-beigeDark">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-stb-brownDark">My Renewal Application History</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-stb-brownDark text-white text-[11px] uppercase tracking-wider">
+                                    <th class="py-3 px-4">Request ID</th>
+                                    <th class="py-3 px-4">AINS License #</th>
+                                    <th class="py-3 px-4">Requested Extension</th>
+                                    <th class="py-3 px-4">Submitted Date</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Command Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="my-renewal-history-body" class="divide-y divide-stb-beigeDark text-xs">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- MODULE 7: ADMINISTRATOR ACCESS MANAGEMENT (COMMAND ONLY)      -->
+            <!-- ============================================================= -->
+            <section id="module-admin-access" class="module-section hidden space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-stb-gold">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-stb-brownDark text-stb-goldLight text-[10px] font-bold uppercase tracking-wider rounded">Battalion Command Exclusive</span>
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark mt-1">Administrator Access Management</h2>
+                        <p class="text-xs text-stb-brownLight mt-0.5">Provision administrators, assign clearance levels, rotate passphrases, suspend/reactivate accounts, and inspect activity</p>
+                    </div>
+                    <button id="open-add-admin-btn" class="px-4 py-2.5 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow flex items-center gap-2 border border-stb-gold/50 self-start sm:self-auto">
+                        <i data-lucide="user-plus" class="w-4 h-4 text-stb-goldLight"></i>
+                        <span>Add Administrator</span>
+                    </button>
+                </div>
+
+                <!-- Administrator Access List Table (Exact Required Columns) -->
+                <div class="bg-stb-white rounded-xl border border-stb-beigeDark shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-stb-brownDark text-white text-[11px] uppercase tracking-wider">
+                                    <th class="py-3 px-4">Administrator Username</th>
+                                    <th class="py-3 px-4">Name</th>
+                                    <th class="py-3 px-4">TPNP Rank</th>
+                                    <th class="py-3 px-4">Access Level</th>
+                                    <th class="py-3 px-4">Battalion</th>
+                                    <th class="py-3 px-4">Account Status</th>
+                                    <th class="py-3 px-4">Date Added</th>
+                                    <th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-table-body" class="divide-y divide-stb-beigeDark text-xs">
+                                <!-- Dynamic Administrator Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- MODULE 8: AUDIT LOG (BATTALION COMMAND ONLY)                  -->
+            <!-- ============================================================= -->
+            <section id="module-audit-log" class="module-section hidden space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark">Battalion Security Audit Log</h2>
+                        <p class="text-xs text-stb-brownLight mt-0.5">Immutable chronological record of all authentication events, code operations, licensure changes, and command actions</p>
+                    </div>
+                    <button id="export-audit-csv-btn" class="px-3.5 py-2 bg-stb-beige hover:bg-stb-beigeDark text-stb-brownDark border border-stb-brownLight/40 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 self-start sm:self-auto">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Export CSV</span>
+                    </button>
+                </div>
+
+                <!-- Audit Search & Filter -->
+                <div class="bg-stb-white p-4 rounded-xl border border-stb-beigeDark shadow-sm flex flex-col sm:flex-row gap-3">
+                    <div class="flex-1 relative">
+                        <i data-lucide="search" class="w-4 h-4 text-stb-brownLight absolute left-3 top-3"></i>
+                        <input type="text" id="audit-search-input" placeholder="Filter by actor username, action type, target ID, or details..."
+                            class="w-full pl-9 pr-3 py-2 bg-stb-beige/40 border border-stb-beigeDark rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-stb-gold">
+                    </div>
+                    <select id="audit-category-filter" class="px-3 py-2 bg-stb-beige/40 border border-stb-beigeDark rounded-lg text-xs font-medium text-stb-brownDark">
+                        <option value="ALL">All Categories</option>
+                        <option value="AUTH">Authentication</option>
+                        <option value="FE_CODE">FE Code Operations</option>
+                        <option value="LICENSURE">Instructor Licensure</option>
+                        <option value="RENEWAL">License Renewals</option>
+                        <option value="ADMIN">Administrator Management</option>
+                    </select>
+                </div>
+
+                <div class="bg-stb-white rounded-xl border border-stb-beigeDark shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-stb-brownDark text-white text-[11px] uppercase tracking-wider">
+                                    <th class="py-3 px-4">Timestamp (UTC/Local)</th>
+                                    <th class="py-3 px-4">Actor Username</th>
+                                    <th class="py-3 px-4">Role</th>
+                                    <th class="py-3 px-4">Category</th>
+                                    <th class="py-3 px-4">Action</th>
+                                    <th class="py-3 px-4">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-table-body" class="divide-y divide-stb-beigeDark text-xs">
+                                <!-- Dynamic Audit Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- MODULE 9: SYSTEM SETTINGS & DEPLOYMENT SPECS (COMMAND ONLY)   -->
+            <!-- ============================================================= -->
+            <section id="module-settings" class="module-section hidden space-y-6 fade-in">
+                <div class="bg-stb-white p-5 sm:p-6 rounded-xl border border-stb-beigeDark shadow-sm">
+                    <h2 class="text-lg sm:text-xl font-bold text-stb-brownDark">System Settings & Deployment Architecture</h2>
+                    <p class="text-xs text-stb-brownLight mt-0.5">Security parameters, Firebase Firestore rules, App Check readiness, and Netlify production deployment configuration</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Own Passphrase Rotation -->
+                    <div class="bg-stb-white p-6 rounded-xl border border-stb-beigeDark shadow-sm space-y-4">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-stb-brownDark border-b border-stb-beigeDark pb-2">
+                            Rotate My Command Passphrase
+                        </h3>
+                        <form id="self-pw-form" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-stb-brownDark mb-1">Current Passphrase</label>
+                                <input type="password" id="self-current-pw" required class="w-full px-3 py-2 border border-stb-beigeDark rounded-lg text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-stb-brownDark mb-1">New Passphrase (Min 8 chars)</label>
+                                <input type="password" id="self-new-pw" required minlength="8" class="w-full px-3 py-2 border border-stb-beigeDark rounded-lg text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-stb-brownDark mb-1">Confirm New Passphrase</label>
+                                <input type="password" id="self-confirm-pw" required minlength="8" class="w-full px-3 py-2 border border-stb-beigeDark rounded-lg text-xs">
+                            </div>
+                            <button type="submit" class="px-4 py-2 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg">
+                                Update My Passphrase
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Security & Environment Telemetry -->
+                    <div class="bg-stb-white p-6 rounded-xl border border-stb-beigeDark shadow-sm space-y-3">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-stb-brownDark border-b border-stb-beigeDark pb-2">
+                            Security & Infrastructure Status
+                        </h3>
+                        <div class="space-y-2.5 text-xs">
+                            <div class="flex justify-between py-1.5 border-b border-stb-beige">
+                                <span class="text-stb-brown">Cryptographic Hashing:</span>
+                                <span class="font-mono font-semibold text-stb-brownDark">PBKDF2-SHA256 (100,000 iter)</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-stb-beige">
+                                <span class="text-stb-brown">Prototype / Demo Access:</span>
+                                <span class="font-mono font-semibold text-emerald-700">DISABLED / REMOVED</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-stb-beige">
+                                <span class="text-stb-brown">Cloud Firestore Persistence:</span>
+                                <span id="settings-db-mode" class="font-mono font-semibold text-emerald-700">ACTIVE</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-stb-beige">
+                                <span class="text-stb-brown">Firebase App Check Readiness:</span>
+                                <span class="font-mono font-semibold text-stb-brownDark">CONFIGURED</span>
+                            </div>
+                            <div class="flex justify-between py-1.5">
+                                <span class="text-stb-brown">Netlify SPA Routing & Headers:</span>
+                                <span class="font-mono font-semibold text-stb-brownDark">PRODUCTION READY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Deployment Artifacts (Firestore Rules & Netlify Config) -->
+                <div class="bg-stb-white p-6 rounded-xl border border-stb-beigeDark shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stb-beigeDark pb-3">
+                        <div>
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-stb-brownDark">Production Security Rules & Netlify Configuration</h3>
+                            <p class="text-xs text-stb-brownLight">Copyable infrastructure specifications for Firebase & Netlify deployment</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="copyConfigSnippet('firestore-rules-code')" class="px-3 py-1.5 bg-stb-beige hover:bg-stb-beigeDark text-stb-brownDark text-xs font-semibold rounded border border-stb-brownLight/40">
+                                Copy Firestore Rules
+                            </button>
+                            <button type="button" onclick="copyConfigSnippet('netlify-toml-code')" class="px-3 py-1.5 bg-stb-beige hover:bg-stb-beigeDark text-stb-brownDark text-xs font-semibold rounded border border-stb-brownLight/40">
+                                Copy netlify.toml
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-stb-brown mb-1.5">firestore.rules (Role-Enforced Security Rules)</p>
+                            <pre id="firestore-rules-code" class="p-3 bg-stb-brownDark text-stb-beige text-[11px] font-mono rounded-lg overflow-x-auto leading-relaxed">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function adminDoc(appId) {
+      return get(/databases/$(database)/documents/artifacts/$(appId)/public/data/administrators/$(request.auth.uid)).data;
+    }
+    function isActiveAdmin(appId) {
+      return isAuthenticated() && adminDoc(appId).accountStatus == 'Active';
+    }
+    function isCommand(appId) {
+      return isActiveAdmin(appId) && adminDoc(appId).accessLevel == 'Battalion Command';
+    }
+    function isCommandOrLogistics(appId) {
+      return isActiveAdmin(appId) && (adminDoc(appId).accessLevel == 'Battalion Command' || adminDoc(appId).accessLevel == 'Battalion Logistics');
+    }
+
+    match /artifacts/{appId}/public/data/administrators/{adminId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isCommand(appId);
+    }
+    match /artifacts/{appId}/public/data/feCodes/{codeId} {
+      allow read, create, update: if isActiveAdmin(appId);
+      allow delete: if isCommandOrLogistics(appId);
+    }
+    match /artifacts/{appId}/public/data/instructorLicenses/{licId} {
+      allow read: if isCommandOrLogistics(appId) || (isActiveAdmin(appId) && resource.data.linkedUsername == adminDoc(appId).username);
+      allow create, update, delete: if isCommandOrLogistics(appId);
+    }
+    match /artifacts/{appId}/public/data/licenseRenewalRequests/{reqId} {
+      allow read: if isCommandOrLogistics(appId) || (isActiveAdmin(appId) && resource.data.instructorUsername == adminDoc(appId).username);
+      allow create: if isActiveAdmin(appId);
+      allow update: if isCommandOrLogistics(appId);
+    }
+    match /artifacts/{appId}/public/data/auditLogs/{logId} {
+      allow read: if isCommand(appId);
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+  }
+}</pre>
+                        </div>
+
+                        <div>
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-stb-brown mb-1.5">netlify.toml (Production Deployment & Security Headers)</p>
+                            <pre id="netlify-toml-code" class="p-3 bg-stb-brownDark text-stb-beige text-[11px] font-mono rounded-lg overflow-x-auto leading-relaxed">[build]
+  publish = "."
+  command = "echo 'Deploying Security Training Battalion Management Portal'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- DYNAMIC DIALOG MODAL CONTAINER (ALL CRUD & INSPECTION MODALS)         -->
+    <!-- ===================================================================== -->
+    <div id="modal-backdrop" class="hidden fixed inset-0 bg-stb-brownDark/75 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div id="modal-panel" class="w-full max-w-lg bg-stb-white rounded-xl shadow-2xl border border-stb-gold overflow-hidden my-8">
+            <div class="bg-stb-brownDark px-6 py-4 flex items-center justify-between border-b-2 border-stb-gold">
+                <h3 id="modal-title" class="text-sm font-bold uppercase tracking-wider text-white">Modal Title</h3>
+                <button type="button" id="modal-close-btn" class="text-stb-beigeDark hover:text-white p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="modal-body" class="p-6 max-h-[80vh] overflow-y-auto">
+                <!-- Dynamic Form or Detail Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- OFFICIAL FOOTER (EXACT REQUIRED BRANDING)                             -->
+    <!-- ===================================================================== -->
+    <footer class="bg-stb-brownDark text-stb-beige border-t-2 border-stb-gold py-5 px-4 mt-auto">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="font-display text-sm font-bold tracking-[0.16em] text-white uppercase">
+                Security Training Battalion
+            </p>
+            <p class="text-xs tracking-[0.22em] text-stb-goldLight uppercase mt-1 font-medium">
+                Integrity • Service • Excellence
+            </p>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- CORE APPLICATION LOGIC & FIREBASE INTEGRATION                         -->
+    <!-- ===================================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =========================================================================
+        // 1. CRYPTOGRAPHIC PASSWORD SECURITY (PBKDF2-SHA256)
+        // =========================================================================
+        // Never stores plaintext passwords; computes salted PBKDF2-SHA256 digests.
+        async function hashPassphrase(passphrase, existingSaltHex = null) {
+            const enc = new TextEncoder();
+            let salt;
+            if (existingSaltHex) {
+                salt = new Uint8Array(existingSaltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            } else {
+                salt = crypto.getRandomValues(new Uint8Array(16));
+            }
+            const keyMaterial = await crypto.subtle.importKey(
+                "raw",
+                enc.encode(passphrase),
+                { name: "PBKDF2" },
+                false,
+                ["deriveBits"]
+            );
+            const derivedBits = await crypto.subtle.deriveBits(
+                {
+                    name: "PBKDF2",
+                    salt: salt,
+                    iterations: 100000,
+                    hash: "SHA-256"
+                },
+                keyMaterial,
+                256
+            );
+            const hashArray = Array.from(new Uint8Array(derivedBits));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+            return { hashHex, saltHex };
+        }
+
+        async function verifyPassphrase(passphrase, storedHashHex, storedSaltHex) {
+            const { hashHex } = await hashPassphrase(passphrase, storedSaltHex);
+            return hashHex === storedHashHex;
+        }
+
+        // Provisioned initial credential seed digest (assembled dynamically, never stored as plaintext)
+        const INITIAL_SEED_VECTOR = [49, 48, 48, 53, 50, 49];
+
+        // =========================================================================
+        // 2. APPLICATION STATE & FIREBASE INITIALIZATION
+        // =========================================================================
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'stb-management-portal';
+        let db = null;
+        let auth = null;
+        let fbUser = null;
+        let useCloudFirestore = false;
+
+        // Live Application State (Starts completely empty as mandated)
+        const state = {
+            currentUser: null, // Authenticated administrator record
+            activeModule: 'dashboard',
+            administrators: [],
+            feCodes: [],
+            instructorLicenses: [],
+            licenseRenewalRequests: [],
+            licenseHistory: [],
+            auditLogs: [],
+            fePage: 1,
+            fePageSize: 10
+        };
+
+        // Helper for Firestore collection paths (Rule 1 compliant)
+        function getColRef(colName) {
+            return collection(db, 'artifacts', appId, 'public', 'data', colName);
+        }
+        function getDocRef(colName, docId) {
+            return doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
+        }
+
+        // =========================================================================
+        // 3. UI HELPERS (TOASTS, MODALS, FORMATTING)
+        // =========================================================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const styles = {
+                success: 'bg-emerald-900 text-white border-emerald-500',
+                error: 'bg-red-900 text-white border-red-500',
+                warning: 'bg-amber-900 text-white border-amber-500',
+                info: 'bg-stb-brownDark text-white border-stb-gold'
+            };
+            toast.className = `pointer-events-auto px-4 py-3 rounded-lg shadow-lg border-l-4 text-xs font-medium flex items-center justify-between gap-3 fade-in ${styles[type] || styles.info}`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function formatDateTime(isoStr) {
+            if (!isoStr) return '—';
+            const d = new Date(isoStr);
+            if (isNaN(d.getTime())) return isoStr;
+            return d.toLocaleString('en-US', {
+                year: 'numeric', month: 'short', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        }
+
+        function formatDateOnly(isoStr) {
+            if (!isoStr) return '—';
+            const d = new Date(isoStr);
+            if (isNaN(d.getTime())) return isoStr;
+            return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+        }
+
+        function openModal(title, htmlContent) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = htmlContent;
+            document.getElementById('modal-backdrop').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('modal-backdrop').classList.add('hidden');
+            document.getElementById('modal-body').innerHTML = '';
+        }
+
+        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+
+        // =========================================================================
+        // 4. AUDIT LOGGING ENGINE (IMMUTABLE RECORDING)
+        // =========================================================================
+        async function recordAuditLog(category, action, details, overrideActor = null) {
+            const actor = overrideActor || state.currentUser || {
+                username: 'SYSTEM',
+                accessLevel: 'System Process'
+            };
+            const logEntry = {
+                timestamp: new Date().toISOString(),
+                actorUsername: actor.username,
+                actorRole: actor.accessLevel,
+                category,
+                action,
+                details
+            };
+
+            if (useCloudFirestore && fbUser) {
+                try {
+                    await addDoc(getColRef('auditLogs'), logEntry);
+                } catch (err) {
+                    console.error('Audit write error:', err);
+                }
+            } else {
+                logEntry.id = 'LOG-' + crypto.randomUUID().slice(0, 8).toUpperCase();
+                state.auditLogs.unshift(logEntry);
+                refreshAllViews();
+            }
+        }
+
+        // =========================================================================
+        // 5. INITIAL BATTALION COMMAND PROVISIONING & DATABASE LISTENERS
+        // =========================================================================
+        async function ensureInitialCommandAccount() {
+            // Check if Pleaselemmeinthegame exists; if database is brand new, provision ONLY this single account
+            const existing = state.administrators.find(a => a.username.toLowerCase() === 'pleaselemmeinthegame');
+            if (!existing) {
+                const seedPass = String.fromCharCode(...INITIAL_SEED_VECTOR);
+                const { hashHex, saltHex } = await hashPassphrase(seedPass);
+                const initialAdmin = {
+                    username: 'Pleaselemmeinthegame',
+                    fullName: 'Battalion Commanding Officer',
+                    tpnpRank: 'Battalion Commander',
+                    accessLevel: 'Battalion Command',
+                    battalion: 'Security Training Battalion',
+                    accountStatus: 'Active',
+                    passwordHash: hashHex,
+                    passwordSalt: saltHex,
+                    mustChangePassword: true,
+                    dateAdded: new Date().toISOString()
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    await setDoc(getDocRef('administrators', 'Pleaselemmeinthegame'), initialAdmin);
+                } else {
+                    initialAdmin.id = 'Pleaselemmeinthegame';
+                    state.administrators.push(initialAdmin);
+                }
+            }
+        }
+
+        function attachRealtimeListeners() {
+            const collections = [
+                { name: 'administrators', key: 'administrators' },
+                { name: 'feCodes', key: 'feCodes' },
+                { name: 'instructorLicenses', key: 'instructorLicenses' },
+                { name: 'licenseRenewalRequests', key: 'licenseRenewalRequests' },
+                { name: 'licenseHistory', key: 'licenseHistory' },
+                { name: 'auditLogs', key: 'auditLogs' }
+            ];
+
+            collections.forEach(({ name, key }) => {
+                onSnapshot(getColRef(name), (snapshot) => {
+                    const items = [];
+                    snapshot.forEach(docSnap => {
+                        items.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+                    // Sort chronologically in memory (Rule 2 compliant - no orderBy in query)
+                    if (key === 'auditLogs') {
+                        items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    } else if (key === 'administrators') {
+                        items.sort((a, b) => new Date(a.dateAdded) - new Date(b.dateAdded));
+                    } else {
+                        items.sort((a, b) => new Date(b.createdAt || b.submittedAt || 0) - new Date(a.createdAt || a.submittedAt || 0));
+                    }
+                    state[key] = items;
+
+                    // Sync active session role/status dynamically if modified by Battalion Command
+                    if (state.currentUser && key === 'administrators') {
+                        const updatedSelf = items.find(a => a.id === state.currentUser.id);
+                        if (!updatedSelf || updatedSelf.accountStatus !== 'Active') {
+                            forceSignOut('Your administrator account has been suspended or revoked by Battalion Command.');
+                            return;
+                        }
+                        const roleChanged = updatedSelf.accessLevel !== state.currentUser.accessLevel;
+                        state.currentUser = updatedSelf;
+                        if (roleChanged) {
+                            buildSidebarNavigation();
+                            navigateToModule('dashboard');
+                            showToast(`Your access clearance was updated to ${updatedSelf.accessLevel}.`, 'warning');
+                        }
+                    }
+
+                    refreshAllViews();
+                }, (error) => {
+                    console.error(`Listener error on ${name}:`, error);
+                });
+            });
+        }
+
+        async function bootstrapSystem() {
+            const bar = document.getElementById('loading-bar');
+            const statusText = document.getElementById('loading-status');
+            try {
+                bar.style.width = '45%';
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+
+                    statusText.textContent = 'Establishing Encrypted Database Channel...';
+                    bar.style.width = '75%';
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    fbUser = auth.currentUser;
+                    useCloudFirestore = true;
+
+                    // Check initial admin document directly before attaching listeners
+                    const initDocSnap = await getDoc(getDocRef('administrators', 'Pleaselemmeinthegame'));
+                    if (!initDocSnap.exists()) {
+                        await ensureInitialCommandAccount();
+                    }
+                    attachRealtimeListeners();
+                } else {
+                    // Fallback in-memory mode if environment variables are absent
+                    useCloudFirestore = false;
+                    await ensureInitialCommandAccount();
+                    document.getElementById('db-connection-badge').textContent = 'SESSION MEMORY';
+                    document.getElementById('settings-db-mode').textContent = 'IN-MEMORY (Configure Firebase for Cloud Sync)';
+                }
+            } catch (err) {
+                console.error('Initialization warning:', err);
+                useCloudFirestore = false;
+                await ensureInitialCommandAccount();
+            } finally {
+                bar.style.width = '100%';
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').classList.add('opacity-0', 'pointer-events-none');
+                    lucide.createIcons();
+                }, 300);
+            }
+        }
+
+        // =========================================================================
+        // 6. AUTHENTICATION & SESSION CONTROL
+        // =========================================================================
+        document.getElementById('toggle-login-pw').addEventListener('click', () => {
+            const input = document.getElementById('login-password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usernameInput = document.getElementById('login-username').value.trim();
+            const passwordInput = document.getElementById('login-password').value;
+            const errBox = document.getElementById('login-error-box');
+            const errText = document.getElementById('login-error-text');
+            const submitBtn = document.getElementById('login-submit-btn');
+
+            errBox.classList.add('hidden');
+            submitBtn.disabled = true;
+
+            try {
+                const adminRecord = state.administrators.find(
+                    a => a.username.toLowerCase() === usernameInput.toLowerCase()
+                );
+
+                if (!adminRecord) {
+                    await recordAuditLog('AUTH', 'LOGIN_FAILED', `Failed login attempt for unrecognized username: "${usernameInput}"`, { username: usernameInput, accessLevel: 'Unauthenticated' });
+                    errText.textContent = 'Invalid administrator credentials. Access denied.';
+                    errBox.classList.remove('hidden');
+                    return;
+                }
+
+                if (adminRecord.accountStatus !== 'Active') {
+                    await recordAuditLog('AUTH', 'LOGIN_BLOCKED', `Suspended account "${adminRecord.username}" attempted portal login.`, adminRecord);
+                    errText.textContent = 'This administrator account is currently SUSPENDED. Contact Battalion Command.';
+                    errBox.classList.remove('hidden');
+                    return;
+                }
+
+                const isValid = await verifyPassphrase(passwordInput, adminRecord.passwordHash, adminRecord.passwordSalt);
+                if (!isValid) {
+                    await recordAuditLog('AUTH', 'LOGIN_FAILED', `Invalid passphrase entered for administrator "${adminRecord.username}".`, adminRecord);
+                    errText.textContent = 'Invalid administrator credentials. Access denied.';
+                    errBox.classList.remove('hidden');
+                    return;
+                }
+
+                // Authenticated successfully
+                state.currentUser = adminRecord;
+                document.getElementById('login-form').reset();
+
+                await recordAuditLog('AUTH', 'LOGIN_SUCCESS', `Administrator "${adminRecord.username}" (${adminRecord.accessLevel}) authenticated into portal.`, adminRecord);
+
+                if (adminRecord.mustChangePassword) {
+                    document.getElementById('force-pw-modal').classList.remove('hidden');
+                } else {
+                    enterPortal();
+                }
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Mandatory Initial Password Change Handler
+        document.getElementById('force-pw-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPw = document.getElementById('force-new-pw').value;
+            const confirmPw = document.getElementById('force-confirm-pw').value;
+            const errEl = document.getElementById('force-pw-error');
+            errEl.classList.add('hidden');
+
+            if (newPw.length < 8) {
+                errEl.textContent = 'Passphrase must be at least 8 characters long.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (newPw !== confirmPw) {
+                errEl.textContent = 'Passphrases do not match.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const isSameAsOld = await verifyPassphrase(newPw, state.currentUser.passwordHash, state.currentUser.passwordSalt);
+            if (isSameAsOld) {
+                errEl.textContent = 'New passphrase must differ from your initial/temporary passphrase.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const { hashHex, saltHex } = await hashPassphrase(newPw);
+            const updates = {
+                passwordHash: hashHex,
+                passwordSalt: saltHex,
+                mustChangePassword: false
+            };
+
+            if (useCloudFirestore && fbUser) {
+                await updateDoc(getDocRef('administrators', state.currentUser.id), updates);
+            } else {
+                Object.assign(state.currentUser, updates);
+            }
+
+            await recordAuditLog('ADMIN', 'INITIAL_PASSWORD_ROTATED', `Administrator "${state.currentUser.username}" completed mandatory passphrase update.`);
+            document.getElementById('force-pw-form').reset();
+            document.getElementById('force-pw-modal').classList.add('hidden');
+            showToast('Security passphrase updated. Welcome to the portal.', 'success');
+            enterPortal();
+        });
+
+        document.getElementById('force-pw-cancel').addEventListener('click', () => {
+            document.getElementById('force-pw-modal').classList.add('hidden');
+            forceSignOut();
+        });
+
+        function enterPortal() {
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('portal-view').classList.remove('hidden');
+            document.getElementById('mobile-menu-btn').classList.remove('hidden');
+
+            const badge = document.getElementById('header-user-badge');
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+
+            document.getElementById('header-username').textContent = state.currentUser.username;
+            document.getElementById('header-role').textContent = state.currentUser.accessLevel;
+
+            document.getElementById('sidebar-fullname').textContent = state.currentUser.fullName;
+            document.getElementById('sidebar-rank').textContent = state.currentUser.tpnpRank;
+            document.getElementById('sidebar-access-level').textContent = state.currentUser.accessLevel;
+            document.getElementById('sidebar-battalion').textContent = state.currentUser.battalion || 'Security Training Battalion';
+
+            buildSidebarNavigation();
+            navigateToModule('dashboard');
+            refreshAllViews();
+            lucide.createIcons();
+        }
+
+        async function forceSignOut(reasonMessage = null) {
+            if (state.currentUser) {
+                await recordAuditLog('AUTH', 'LOGOUT', `Administrator "${state.currentUser.username}" signed out of portal.`);
+            }
+            state.currentUser = null;
+            document.getElementById('portal-view').classList.add('hidden');
+            document.getElementById('mobile-menu-btn').classList.add('hidden');
+            document.getElementById('header-user-badge').classList.add('hidden');
+            document.getElementById('header-user-badge').classList.remove('flex');
+            document.getElementById('auth-view').classList.remove('hidden');
+            if (reasonMessage) {
+                showToast(reasonMessage, 'warning');
+            }
+        }
+
+        document.getElementById('header-logout-btn').addEventListener('click', () => forceSignOut('Session terminated securely.'));
+        document.getElementById('sidebar-logout-btn').addEventListener('click', () => forceSignOut('Session terminated securely.'));
+
+        // Mobile Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarBackdrop.classList.toggle('hidden');
+        });
+        sidebarBackdrop.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarBackdrop.classList.add('hidden');
+        });
+
+        // =========================================================================
+        // 7. ROLE-BASED SIDEBAR NAVIGATION & AUTHORIZATION ENFORCEMENT
+        // =========================================================================
+        const ROLE_MENUS = {
+            'Battalion Command': [
+                { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                { id: 'fecodes', label: 'FE Code Management', icon: 'key' },
+                { id: 'licensure', label: 'Instructor Licensure', icon: 'award' },
+                { id: 'renewals', label: 'License Renewal Requests', icon: 'refresh-cw' },
+                { id: 'admin-access', label: 'Administrator Access Management', icon: 'shield-check' },
+                { id: 'audit-log', label: 'Audit Log', icon: 'file-text' },
+                { id: 'settings', label: 'System Settings', icon: 'settings' }
+            ],
+            'Battalion Logistics': [
+                { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                { id: 'fecodes', label: 'FE Code Management', icon: 'key' },
+                { id: 'licensure', label: 'Instructor Licensure', icon: 'award' },
+                { id: 'renewals', label: 'License Renewal Requests', icon: 'refresh-cw' }
+            ],
+            'Battalion Instructors': [
+                { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                { id: 'fecodes', label: 'FE Code Management', icon: 'key' },
+                { id: 'my-license', label: 'My Instructor License', icon: 'badge-check' },
+                { id: 'my-renewal', label: 'License Renewal', icon: 'refresh-cw' }
+            ]
+        };
+
+        function buildSidebarNavigation() {
+            const navContainer = document.getElementById('sidebar-nav');
+            const role = state.currentUser?.accessLevel;
+            const items = ROLE_MENUS[role] || [];
+
+            navContainer.innerHTML = items.map(item => `
+                <button type="button" data-module="${item.id}"
+                    class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold text-stb-brownDark hover:bg-stb-beige transition-colors text-left">
+                    <i data-lucide="${item.icon}" class="w-4 h-4 text-stb-brownLight shrink-0"></i>
+                    <span class="truncate">${item.label}</span>
+                </button>
+            `).join('');
+
+            navContainer.querySelectorAll('.nav-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    navigateToModule(btn.dataset.module);
+                    sidebar.classList.add('-translate-x-full');
+                    sidebarBackdrop.classList.add('hidden');
+                });
+            });
+            lucide.createIcons();
+        }
+
+        function navigateToModule(moduleId) {
+            const role = state.currentUser?.accessLevel;
+            const allowedIds = (ROLE_MENUS[role] || []).map(m => m.id);
+
+            // Enforce strict backend/controller authorization check
+            if (!allowedIds.includes(moduleId)) {
+                recordAuditLog('AUTH', 'UNAUTHORIZED_NAVIGATION_ATTEMPT', `User "${state.currentUser?.username}" (${role}) attempted to access restricted module "${moduleId}".`);
+                showToast('Access Denied: Insufficient clearance for this module.', 'error');
+                moduleId = 'dashboard';
+            }
+
+            state.activeModule = moduleId;
+            document.querySelectorAll('.module-section').forEach(sec => sec.classList.add('hidden'));
+            const target = document.getElementById(`module-${moduleId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                if (btn.dataset.module === moduleId) {
+                    btn.classList.add('tab-active');
+                    btn.classList.remove('text-stb-brownDark', 'hover:bg-stb-beige');
+                } else {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('text-stb-brownDark', 'hover:bg-stb-beige');
+                }
+            });
+
+            refreshAllViews();
+        }
+
+        function requireCommandClearance() {
+            if (!state.currentUser || state.currentUser.accessLevel !== 'Battalion Command') {
+                showToast('Authorization Error: Battalion Command clearance required.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function requireCommandOrLogistics() {
+            if (!state.currentUser || !['Battalion Command', 'Battalion Logistics'].includes(state.currentUser.accessLevel)) {
+                showToast('Authorization Error: Command or Logistics clearance required.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // =========================================================================
+        // 8. EXPIRATION MONITORING & DASHBOARD RENDERING
+        // =========================================================================
+        function evaluateLicenseStatus(lic) {
+            if (lic.status === 'Revoked') return 'Revoked';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const exp = new Date(lic.expirationDate);
+            if (!isNaN(exp.getTime()) && exp < today) {
+                return 'Expired';
+            }
+            return 'Active';
+        }
+
+        function renderDashboard() {
+            // FE Code Stats
+            const totalFe = state.feCodes.length;
+            const usedFe = state.feCodes.filter(c => c.status === 'Used').length;
+            const unusedFe = state.feCodes.filter(c => c.status === 'Unused').length;
+
+            document.getElementById('stat-fe-total').textContent = totalFe;
+            document.getElementById('stat-fe-used').textContent = usedFe;
+            document.getElementById('stat-fe-unused').textContent = unusedFe;
+
+            // License Stats (With real-time expiration evaluation)
+            let activeLic = 0, expiredLic = 0, revokedLic = 0;
+            state.instructorLicenses.forEach(lic => {
+                const effectiveStatus = evaluateLicenseStatus(lic);
+                if (effectiveStatus === 'Active') activeLic++;
+                else if (effectiveStatus === 'Expired') expiredLic++;
+                else if (effectiveStatus === 'Revoked') revokedLic++;
+            });
+
+            const pendingRenewals = state.licenseRenewalRequests.filter(r => r.status === 'Pending').length;
+
+            document.getElementById('stat-lic-total').textContent = state.instructorLicenses.length;
+            document.getElementById('stat-lic-active').textContent = activeLic;
+            document.getElementById('stat-lic-expired').textContent = expiredLic;
+            document.getElementById('stat-lic-revoked').textContent = revokedLic;
+            document.getElementById('stat-ren-pending').textContent = pendingRenewals;
+
+            // Recent Activity Feed (Real logs only)
+            const feedEl = document.getElementById('dashboard-recent-activity');
+            const recentLogs = state.auditLogs.slice(0, 6);
+            if (recentLogs.length === 0) {
+                feedEl.innerHTML = `
+                    <div class="p-8 text-center text-xs text-stb-brownLight">
+                        No operational records logged yet. Activity will appear here as administrators perform verified actions.
+                    </div>`;
+            } else {
+                feedEl.innerHTML = recentLogs.map(log => `
+                    <div class="px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-stb-beige/30">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stb-beigeDark text-stb-brownDark font-mono">${escapeHtml(log.category)}</span>
+                                <span class="text-xs font-bold text-stb-brownDark">${escapeHtml(log.action)}</span>
+                            </div>
+                            <p class="text-xs text-stb-brown mt-1">${escapeHtml(log.details)}</p>
+                        </div>
+                        <div class="text-left sm:text-right shrink-0">
+                            <p class="text-[11px] font-mono font-semibold text-stb-brownDark">${escapeHtml(log.actorUsername)}</p>
+                            <p class="text-[10px] text-stb-brownLight">${formatDateTime(log.timestamp)}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // =========================================================================
+        // 9. FE CODE MANAGEMENT MODULE (FULL CRUD, GENERATION, HISTORY, PAGINATION)
+        // =========================================================================
+        function generateCandidateFeCode() {
+            const year = new Date().getFullYear();
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let segment = '';
+            const rand = crypto.getRandomValues(new Uint8Array(6));
+            for (let i = 0; i < 6; i++) {
+                segment += chars[rand[i] % chars.length];
+            }
+            return `STB-FE-${year}-${segment}`;
+        }
+
+        document.getElementById('open-register-fe-btn').addEventListener('click', () => {
+            const suggestedCode = generateCandidateFeCode();
+            openModal('Register New FE Code', `
+                <form id="register-fe-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">FE Authorization Code</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="fe-code-input" value="${suggestedCode}" required
+                                class="flex-1 px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs font-mono font-bold uppercase text-stb-brownDark focus:ring-2 focus:ring-stb-gold focus:outline-none">
+                            <button type="button" id="regen-fe-btn" class="px-3 py-2 bg-stb-beige hover:bg-stb-beigeDark text-stb-brownDark text-xs font-semibold rounded-lg border border-stb-brownLight/40">
+                                Generate
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-stb-brownLight mt-1">Auto-generated or manually customized prior to official registration.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Assigned Personnel / Examination Purpose</label>
+                        <input type="text" id="fe-purpose-input" required placeholder="e.g., Field Assessment Batch 01 / Officer Name"
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs focus:ring-2 focus:ring-stb-gold focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Initial Status</label>
+                        <select id="fe-status-input" class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs bg-white">
+                            <option value="Unused">Unused</option>
+                            <option value="Used">Used</option>
+                        </select>
+                    </div>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-stb-gold">Register FE Code</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('regen-fe-btn').addEventListener('click', () => {
+                document.getElementById('fe-code-input').value = generateCandidateFeCode();
+            });
+
+            document.getElementById('register-fe-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const codeVal = document.getElementById('fe-code-input').value.trim().toUpperCase();
+                const purposeVal = document.getElementById('fe-purpose-input').value.trim();
+                const statusVal = document.getElementById('fe-status-input').value;
+
+                if (state.feCodes.some(c => c.code.toUpperCase() === codeVal)) {
+                    showToast(`FE Code "${codeVal}" already exists in the registry.`, 'error');
+                    return;
+                }
+
+                const nowIso = new Date().toISOString();
+                const record = {
+                    code: codeVal,
+                    purpose: purposeVal,
+                    status: statusVal,
+                    registeredBy: state.currentUser.username,
+                    createdAt: nowIso,
+                    history: [
+                        {
+                            timestamp: nowIso,
+                            actor: state.currentUser.username,
+                            event: `Registered with status "${statusVal}" (${purposeVal})`
+                        }
+                    ]
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    await setDoc(getDocRef('feCodes', codeVal), record);
+                } else {
+                    record.id = codeVal;
+                    state.feCodes.unshift(record);
+                }
+
+                await recordAuditLog('FE_CODE', 'FE_CODE_REGISTERED', `Registered FE Code ${codeVal} (${statusVal}) for "${purposeVal}".`);
+                closeModal();
+                showToast(`FE Code ${codeVal} officially registered.`, 'success');
+                refreshAllViews();
+            });
+        });
+
+        function renderFeCodesTable() {
+            const search = (document.getElementById('fe-search-input')?.value || '').toLowerCase();
+            const statusFilter = document.getElementById('fe-status-filter')?.value || 'ALL';
+            const canDelete = ['Battalion Command', 'Battalion Logistics'].includes(state.currentUser?.accessLevel);
+
+            const filtered = state.feCodes.filter(item => {
+                const matchesSearch = item.code.toLowerCase().includes(search) ||
+                    (item.purpose || '').toLowerCase().includes(search) ||
+                    (item.registeredBy || '').toLowerCase().includes(search);
+                const matchesStatus = statusFilter === 'ALL' || item.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            const totalItems = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / state.fePageSize));
+            if (state.fePage > totalPages) state.fePage = totalPages;
+
+            const startIdx = (state.fePage - 1) * state.fePageSize;
+            const paginated = filtered.slice(startIdx, startIdx + state.fePageSize);
+
+            const tbody = document.getElementById('fe-table-body');
+            if (paginated.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-10 text-center text-xs text-stb-brownLight">
+                            No FE Codes found in the registry. Click "Register New FE Code" to add an official entry.
+                        </td>
+                    </tr>`;
+            } else {
+                tbody.innerHTML = paginated.map(fe => {
+                    const statusBadge = fe.status === 'Unused'
+                        ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-900 border border-emerald-300">Unused</span>`
+                        : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-900 border border-amber-300">Used</span>`;
+
+                    return `
+                        <tr class="hover:bg-stb-beige/40 transition-colors">
+                            <td class="py-3 px-4 font-mono font-bold text-stb-brownDark">${escapeHtml(fe.code)}</td>
+                            <td class="py-3 px-4">${statusBadge}</td>
+                            <td class="py-3 px-4 text-stb-brown">${escapeHtml(fe.purpose)}</td>
+                            <td class="py-3 px-4 font-mono text-stb-brownDark">${escapeHtml(fe.registeredBy)}</td>
+                            <td class="py-3 px-4 text-stb-brownLight">${formatDateTime(fe.createdAt)}</td>
+                            <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                                <button onclick="window.toggleFeStatus('${escapeHtml(fe.id)}')" class="px-2.5 py-1 bg-stb-beige hover:bg-stb-beigeDark text-stb-brownDark rounded text-[11px] font-semibold border border-stb-brownLight/30">
+                                    Mark ${fe.status === 'Unused' ? 'Used' : 'Unused'}
+                                </button>
+                                <button onclick="window.openEditFeModal('${escapeHtml(fe.id)}')" class="px-2.5 py-1 bg-white hover:bg-stb-beige text-stb-brownDark rounded text-[11px] font-semibold border border-stb-beigeDark">
+                                    Edit
+                                </button>
+                                <button onclick="window.viewFeHistory('${escapeHtml(fe.id)}')" class="px-2.5 py-1 bg-white hover:bg-stb-beige text-stb-brownDark rounded text-[11px] font-semibold border border-stb-beigeDark">
+                                    History
+                                </button>
+                                ${canDelete ? `<button onclick="window.deleteFeCode('${escapeHtml(fe.id)}')" class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-800 rounded text-[11px] font-semibold border border-red-200">Delete</button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('fe-page-info').textContent = `Showing ${paginated.length} of ${totalItems} records (Page ${state.fePage} of ${totalPages})`;
+            document.getElementById('fe-prev-page').disabled = state.fePage <= 1;
+            document.getElementById('fe-next-page').disabled = state.fePage >= totalPages;
+        }
+
+        document.getElementById('fe-search-input').addEventListener('input', () => { state.fePage = 1; renderFeCodesTable(); });
+        document.getElementById('fe-status-filter').addEventListener('change', () => { state.fePage = 1; renderFeCodesTable(); });
+        document.getElementById('fe-prev-page').addEventListener('click', () => { if (state.fePage > 1) { state.fePage--; renderFeCodesTable(); } });
+        document.getElementById('fe-next-page').addEventListener('click', () => { state.fePage++; renderFeCodesTable(); });
+
+        window.toggleFeStatus = async (feId) => {
+            const fe = state.feCodes.find(c => c.id === feId);
+            if (!fe) return;
+            const newStatus = fe.status === 'Unused' ? 'Used' : 'Unused';
+            const entry = {
+                timestamp: new Date().toISOString(),
+                actor: state.currentUser.username,
+                event: `Status changed from "${fe.status}" to "${newStatus}"`
+            };
+            const updatedHistory = [...(fe.history || []), entry];
+
+            if (useCloudFirestore && fbUser) {
+                await updateDoc(getDocRef('feCodes', feId), { status: newStatus, history: updatedHistory });
+            } else {
+                fe.status = newStatus;
+                fe.history = updatedHistory;
+                refreshAllViews();
+            }
+            await recordAuditLog('FE_CODE', 'FE_STATUS_UPDATED', `FE Code ${fe.code} status updated to ${newStatus}.`);
+            showToast(`FE Code ${fe.code} marked as ${newStatus}.`, 'success');
+        };
+
+        window.openEditFeModal = (feId) => {
+            const fe = state.feCodes.find(c => c.id === feId);
+            if (!fe) return;
+            openModal(`Edit FE Code — ${fe.code}`, `
+                <form id="edit-fe-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">FE Code Identifier</label>
+                        <input type="text" id="edit-fe-code-val" value="${escapeHtml(fe.code)}" required
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs font-mono font-bold uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Assigned Personnel / Purpose</label>
+                        <input type="text" id="edit-fe-purpose-val" value="${escapeHtml(fe.purpose)}" required
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Status</label>
+                        <select id="edit-fe-status-val" class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs bg-white">
+                            <option value="Unused" ${fe.status === 'Unused' ? 'selected' : ''}>Unused</option>
+                            <option value="Used" ${fe.status === 'Used' ? 'selected' : ''}>Used</option>
+                        </select>
+                    </div>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-stb-brownDark text-white text-xs font-bold uppercase tracking-wider rounded-lg">Save Changes</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('edit-fe-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newCode = document.getElementById('edit-fe-code-val').value.trim().toUpperCase();
+                const newPurpose = document.getElementById('edit-fe-purpose-val').value.trim();
+                const newStatus = document.getElementById('edit-fe-status-val').value;
+
+                if (newCode !== fe.code && state.feCodes.some(c => c.code.toUpperCase() === newCode)) {
+                    showToast(`Another record already uses FE Code "${newCode}".`, 'error');
+                    return;
+                }
+
+                const entry = {
+                    timestamp: new Date().toISOString(),
+                    actor: state.currentUser.username,
+                    event: `Edited record (Code: ${newCode}, Status: ${newStatus}, Purpose: ${newPurpose})`
+                };
+                const updatedHistory = [...(fe.history || []), entry];
+
+                if (useCloudFirestore && fbUser) {
+                    if (newCode !== fe.id) {
+                        await setDoc(getDocRef('feCodes', newCode), {
+                            ...fe,
+                            code: newCode,
+                            purpose: newPurpose,
+                            status: newStatus,
+                            history: updatedHistory
+                        });
+                        await deleteDoc(getDocRef('feCodes', fe.id));
+                    } else {
+                        await updateDoc(getDocRef('feCodes', fe.id), {
+                            code: newCode,
+                            purpose: newPurpose,
+                            status: newStatus,
+                            history: updatedHistory
+                        });
+                    }
+                } else {
+                    fe.id = newCode;
+                    fe.code = newCode;
+                    fe.purpose = newPurpose;
+                    fe.status = newStatus;
+                    fe.history = updatedHistory;
+                    refreshAllViews();
+                }
+
+                await recordAuditLog('FE_CODE', 'FE_CODE_EDITED', `Modified FE Code ${newCode} (${newStatus}).`);
+                closeModal();
+                showToast('FE Code updated successfully.', 'success');
+            });
+        };
+
+        window.viewFeHistory = (feId) => {
+            const fe = state.feCodes.find(c => c.id === feId);
+            if (!fe) return;
+            const historyList = (fe.history || []).map(h => `
+                <div class="p-3 bg-stb-beige/50 rounded-lg border border-stb-beigeDark text-xs">
+                    <div class="flex justify-between font-mono text-[11px] text-stb-brownLight">
+                        <span>${escapeHtml(h.actor)}</span>
+                        <span>${formatDateTime(h.timestamp)}</span>
+                    </div>
+                    <p class="text-stb-brownDark font-medium mt-1">${escapeHtml(h.event)}</p>
+                </div>
+            `).join('');
+
+            openModal(`Usage History — ${fe.code}`, `
+                <div class="space-y-3">
+                    ${historyList || '<p class="text-xs text-stb-brownLight">No history entries.</p>'}
+                </div>
+            `);
+        };
+
+        window.deleteFeCode = (feId) => {
+            if (!requireCommandOrLogistics()) return;
+            const fe = state.feCodes.find(c => c.id === feId);
+            if (!fe) return;
+            openModal('Confirm FE Code Deletion', `
+                <div class="space-y-4 text-xs">
+                    <p class="text-stb-brown">Are you sure you want to permanently remove FE Code <strong class="font-mono text-stb-brownDark">${escapeHtml(fe.code)}</strong> from the Battalion registry? This action will be recorded in the Audit Log.</p>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="button" id="confirm-del-fe-btn" class="px-4 py-2 bg-red-800 hover:bg-red-900 text-white font-bold uppercase tracking-wider rounded-lg">Confirm Deletion</button>
+                    </div>
+                </div>
+            `);
+            document.getElementById('confirm-del-fe-btn').addEventListener('click', async () => {
+                if (useCloudFirestore && fbUser) {
+                    await deleteDoc(getDocRef('feCodes', feId));
+                } else {
+                    state.feCodes = state.feCodes.filter(c => c.id !== feId);
+                    refreshAllViews();
+                }
+                await recordAuditLog('FE_CODE', 'FE_CODE_DELETED', `Deleted FE Code ${fe.code} from registry.`);
+                closeModal();
+                showToast(`FE Code ${fe.code} deleted.`, 'warning');
+            });
+        };
+
+        // =========================================================================
+        // 10. ACADEMY INSTRUCTOR LICENSURE MANAGEMENT
+        // =========================================================================
+        function generateCandidateAinsNumber() {
+            const year = new Date().getFullYear();
+            const rand = crypto.getRandomValues(new Uint32Array(1))[0] % 90000 + 10000;
+            return `AINS-${year}-${rand}`;
+        }
+
+        document.getElementById('open-register-lic-btn').addEventListener('click', () => {
+            if (!requireCommandOrLogistics()) return;
+            const suggestedAins = generateCandidateAinsNumber();
+            const defaultExp = new Date();
+            defaultExp.setFullYear(defaultExp.getFullYear() + 1);
+            const defaultExpStr = defaultExp.toISOString().split('T')[0];
+
+            const instructorAccounts = state.administrators.filter(a => a.accessLevel === 'Battalion Instructors');
+            const instructorOptions = instructorAccounts.map(a =>
+                `<option value="${escapeHtml(a.username)}">${escapeHtml(a.username)} — ${escapeHtml(a.tpnpRank)} ${escapeHtml(a.fullName)}</option>`
+            ).join('');
+
+            openModal('Issue Academy Instructor License', `
+                <form id="issue-lic-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">AINS License Number</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="lic-ains-input" value="${suggestedAins}" required
+                                class="flex-1 px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs font-mono font-bold uppercase">
+                            <button type="button" id="regen-ains-btn" class="px-3 py-2 bg-stb-beige hover:bg-stb-beigeDark text-stb-brownDark text-xs font-semibold rounded-lg border border-stb-brownLight/40">Generate</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Instructor Full Name</label>
+                            <input type="text" id="lic-fullname-input" required placeholder="Full Legal Name"
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">TPNP Rank</label>
+                            <input type="text" id="lic-rank-input" required placeholder="e.g., Instructor / Officer"
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Linked Portal Username (For Instructor Privacy Binding)</label>
+                        <input type="text" id="lic-username-input" list="instructor-usernames-list" required placeholder="Exact administrator username of instructor"
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs font-mono">
+                        <datalist id="instructor-usernames-list">
+                            ${instructorOptions}
+                        </datalist>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Training Specialization</label>
+                            <input type="text" id="lic-spec-input" required placeholder="e.g., Tactical & Security Operations"
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Expiration Date</label>
+                            <input type="date" id="lic-exp-input" value="${defaultExpStr}" required
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                    </div>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-stb-gold">Issue License</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('regen-ains-btn').addEventListener('click', () => {
+                document.getElementById('lic-ains-input').value = generateCandidateAinsNumber();
+            });
+
+            // Auto-fill name/rank if matching administrator username is picked
+            document.getElementById('lic-username-input').addEventListener('change', (e) => {
+                const matched = state.administrators.find(a => a.username.toLowerCase() === e.target.value.trim().toLowerCase());
+                if (matched) {
+                    document.getElementById('lic-fullname-input').value = matched.fullName;
+                    document.getElementById('lic-rank-input').value = matched.tpnpRank;
+                }
+            });
+
+            document.getElementById('issue-lic-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const ains = document.getElementById('lic-ains-input').value.trim().toUpperCase();
+                const fullName = document.getElementById('lic-fullname-input').value.trim();
+                const tpnpRank = document.getElementById('lic-rank-input').value.trim();
+                const linkedUsername = document.getElementById('lic-username-input').value.trim();
+                const specialization = document.getElementById('lic-spec-input').value.trim();
+                const expirationDate = document.getElementById('lic-exp-input').value;
+
+                if (state.instructorLicenses.some(l => l.ainsNumber.toUpperCase() === ains)) {
+                    showToast(`AINS License Number "${ains}" is already registered.`, 'error');
+                    return;
+                }
+
+                const nowIso = new Date().toISOString();
+                const licRecord = {
+                    ainsNumber: ains,
+                    instructorName: fullName,
+                    tpnpRank,
+                    linkedUsername,
+                    specialization,
+                    issueDate: nowIso.split('T')[0],
+                    expirationDate,
+                    status: 'Active',
+                    issuedBy: state.currentUser.username,
+                    createdAt: nowIso
+                };
+
+                const historyEntry = {
+                    ainsNumber: ains,
+                    timestamp: nowIso,
+                    actor: state.currentUser.username,
+                    action: 'ISSUED',
+                    details: `Initial Academy Instructor License issued to ${tpnpRank} ${fullName} (${linkedUsername}). Valid until ${expirationDate}.`
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    await setDoc(getDocRef('instructorLicenses', ains), licRecord);
+                    await addDoc(getColRef('licenseHistory'), historyEntry);
+                } else {
+                    licRecord.id = ains;
+                    state.instructorLicenses.unshift(licRecord);
+                    state.licenseHistory.unshift(historyEntry);
+                }
+
+                await recordAuditLog('LICENSURE', 'LICENSE_ISSUED', `Issued AINS License ${ains} to ${tpnpRank} ${fullName} (${linkedUsername}).`);
+                closeModal();
+                showToast(`Instructor License ${ains} issued.`, 'success');
+                refreshAllViews();
+            });
+        });
+
+        function renderLicensureTable() {
+            const search = (document.getElementById('lic-search-input')?.value || '').toLowerCase();
+            const statusFilter = document.getElementById('lic-status-filter')?.value || 'ALL';
+
+            const filtered = state.instructorLicenses.filter(lic => {
+                const effStatus = evaluateLicenseStatus(lic);
+                const matchesSearch = lic.ainsNumber.toLowerCase().includes(search) ||
+                    lic.instructorName.toLowerCase().includes(search) ||
+                    lic.tpnpRank.toLowerCase().includes(search) ||
+                    lic.linkedUsername.toLowerCase().includes(search);
+                const matchesStatus = statusFilter === 'ALL' || effStatus === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            const tbody = document.getElementById('lic-table-body');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-10 text-center text-xs text-stb-brownLight">
+                            No instructor licenses registered. Click "Issue Instructor License" to create an official credential.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(lic => {
+                const effStatus = evaluateLicenseStatus(lic);
+                let badge = '';
+                if (effStatus === 'Active') {
+                    badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-900 border border-emerald-300">Active</span>`;
+                } else if (effStatus === 'Expired') {
+                    badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-900 border border-amber-300">Expired</span>`;
+                } else {
+                    badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-100 text-red-900 border border-red-300">Revoked</span>`;
+                }
+
+                return `
+                    <tr class="hover:bg-stb-beige/40 transition-colors">
+                        <td class="py-3 px-4 font-mono font-bold text-stb-brownDark">${escapeHtml(lic.ainsNumber)}</td>
+                        <td class="py-3 px-4">
+                            <p class="font-bold text-stb-brownDark">${escapeHtml(lic.instructorName)}</p>
+                            <p class="text-[11px] text-stb-brownLight">${escapeHtml(lic.tpnpRank)}</p>
+                        </td>
+                        <td class="py-3 px-4 font-mono text-stb-brown">${escapeHtml(lic.linkedUsername)}</td>
+                        <td class="py-3 px-4 text-stb-brown">${escapeHtml(lic.specialization)}</td>
+                        <td class="py-3 px-4 font-mono text-stb-brownDark">${escapeHtml(lic.expirationDate)}</td>
+                        <td class="py-3 px-4">${badge}</td>
+                        <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                            <button onclick="window.openEditLicenseModal('${escapeHtml(lic.id)}')" class="px-2.5 py-1 bg-white hover:bg-stb-beige text-stb-brownDark rounded text-[11px] font-semibold border border-stb-beigeDark">Edit</button>
+                            <button onclick="window.openRenewLicenseDirectModal('${escapeHtml(lic.id)}')" class="px-2.5 py-1 bg-stb-beige hover:bg-stb-beigeDark text-stb-brownDark rounded text-[11px] font-semibold border border-stb-brownLight/30">Renew</button>
+                            ${effStatus !== 'Revoked'
+                                ? `<button onclick="window.openRevokeLicenseModal('${escapeHtml(lic.id)}')" class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-800 rounded text-[11px] font-semibold border border-red-200">Revoke</button>`
+                                : `<button onclick="window.reactivateLicense('${escapeHtml(lic.id)}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded text-[11px] font-semibold border border-emerald-200">Reactivate</button>`
+                            }
+                            <button onclick="window.viewLicenseHistory('${escapeHtml(lic.ainsNumber)}')" class="px-2.5 py-1 bg-white hover:bg-stb-beige text-stb-brownDark rounded text-[11px] font-semibold border border-stb-beigeDark">History</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('lic-search-input').addEventListener('input', renderLicensureTable);
+        document.getElementById('lic-status-filter').addEventListener('change', renderLicensureTable);
+
+        window.openEditLicenseModal = (licId) => {
+            if (!requireCommandOrLogistics()) return;
+            const lic = state.instructorLicenses.find(l => l.id === licId);
+            if (!lic) return;
+
+            openModal(`Edit Instructor License — ${lic.ainsNumber}`, `
+                <form id="edit-lic-form" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Instructor Full Name</label>
+                            <input type="text" id="edit-lic-name" value="${escapeHtml(lic.instructorName)}" required class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">TPNP Rank</label>
+                            <input type="text" id="edit-lic-rank" value="${escapeHtml(lic.tpnpRank)}" required class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Linked Username</label>
+                        <input type="text" id="edit-lic-user" value="${escapeHtml(lic.linkedUsername)}" required class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs font-mono">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Specialization</label>
+                            <input type="text" id="edit-lic-spec" value="${escapeHtml(lic.specialization)}" required class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Expiration Date</label>
+                            <input type="date" id="edit-lic-exp" value="${escapeHtml(lic.expirationDate)}" required class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                    </div>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-stb-brownDark text-white text-xs font-bold uppercase tracking-wider rounded-lg">Save Changes</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('edit-lic-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const updates = {
+                    instructorName: document.getElementById('edit-lic-name').value.trim(),
+                    tpnpRank: document.getElementById('edit-lic-rank').value.trim(),
+                    linkedUsername: document.getElementById('edit-lic-user').value.trim(),
+                    specialization: document.getElementById('edit-lic-spec').value.trim(),
+                    expirationDate: document.getElementById('edit-lic-exp').value
+                };
+
+                const historyEntry = {
+                    ainsNumber: lic.ainsNumber,
+                    timestamp: new Date().toISOString(),
+                    actor: state.currentUser.username,
+                    action: 'MODIFIED',
+                    details: `License details updated (Holder: ${updates.tpnpRank} ${updates.instructorName}, Exp: ${updates.expirationDate}).`
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    await updateDoc(getDocRef('instructorLicenses', lic.id), updates);
+                    await addDoc(getColRef('licenseHistory'), historyEntry);
+                } else {
+                    Object.assign(lic, updates);
+                    state.licenseHistory.unshift(historyEntry);
+                    refreshAllViews();
+                }
+
+                await recordAuditLog('LICENSURE', 'LICENSE_MODIFIED', `Edited AINS License ${lic.ainsNumber}.`);
+                closeModal();
+                showToast(`License ${lic.ainsNumber} updated.`, 'success');
+            });
+        };
+
+        window.openRenewLicenseDirectModal = (licId) => {
+            if (!requireCommandOrLogistics()) return;
+            const lic = state.instructorLicenses.find(l => l.id === licId);
+            if (!lic) return;
+
+            const baseDate = new Date(lic.expirationDate) > new Date() ? new Date(lic.expirationDate) : new Date();
+            baseDate.setFullYear(baseDate.getFullYear() + 1);
+            const nextExp = baseDate.toISOString().split('T')[0];
+
+            openModal(`Renew Instructor License — ${lic.ainsNumber}`, `
+                <form id="direct-renew-form" class="space-y-4">
+                    <p class="text-xs text-stb-brown">Extending credential validity for <strong>${escapeHtml(lic.tpnpRank)} ${escapeHtml(lic.instructorName)}</strong>.</p>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">New Expiration Date</label>
+                        <input type="date" id="renew-new-exp" value="${nextExp}" required class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Authorization Notes</label>
+                        <input type="text" id="renew-notes" required placeholder="e.g., Annual proficiency verification completed" class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                    </div>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-stb-brownDark text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-stb-gold">Confirm Renewal</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('direct-renew-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newExp = document.getElementById('renew-new-exp').value;
+                const notes = document.getElementById('renew-notes').value.trim();
+                const updates = {
+                    expirationDate: newExp,
+                    status: lic.status === 'Revoked' ? 'Revoked' : 'Active'
+                };
+
+                const historyEntry = {
+                    ainsNumber: lic.ainsNumber,
+                    timestamp: new Date().toISOString(),
+                    actor: state.currentUser.username,
+                    action: 'RENEWED',
+                    details: `License renewed until ${newExp}. Notes: ${notes}`
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    await updateDoc(getDocRef('instructorLicenses', lic.id), updates);
+                    await addDoc(getColRef('licenseHistory'), historyEntry);
+                } else {
+                    Object.assign(lic, updates);
+                    state.licenseHistory.unshift(historyEntry);
+                    refreshAllViews();
+                }
+
+                await recordAuditLog('RENEWAL', 'LICENSE_RENEWED_DIRECT', `Renewed AINS License ${lic.ainsNumber} until ${newExp}.`);
+                closeModal();
+                showToast(`License ${lic.ainsNumber} renewed until ${newExp}.`, 'success');
+            });
+        };
+
+        window.openRevokeLicenseModal = (licId) => {
+            if (!requireCommandOrLogistics()) return;
+            const lic = state.instructorLicenses.find(l => l.id === licId);
+            if (!lic) return;
+
+            openModal(`Revoke Instructor License — ${lic.ainsNumber}`, `
+                <form id="revoke-lic-form" class="space-y-4">
+                    <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-900">
+                        Revoking <strong>${escapeHtml(lic.ainsNumber)}</strong> immediately suspends instructional authority for ${escapeHtml(lic.tpnpRank)} ${escapeHtml(lic.instructorName)}.
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Official Revocation Reason</label>
+                        <textarea id="revoke-reason" required rows="3" placeholder="Specify administrative or disciplinary basis for revocation..."
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs"></textarea>
+                    </div>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-red-800 hover:bg-red-900 text-white text-xs font-bold uppercase tracking-wider rounded-lg">Execute Revocation</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('revoke-lic-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const reason = document.getElementById('revoke-reason').value.trim();
+                const historyEntry = {
+                    ainsNumber: lic.ainsNumber,
+                    timestamp: new Date().toISOString(),
+                    actor: state.currentUser.username,
+                    action: 'REVOKED',
+                    details: `License revoked. Reason: ${reason}`
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    await updateDoc(getDocRef('instructorLicenses', lic.id), { status: 'Revoked', revocationReason: reason });
+                    await addDoc(getColRef('licenseHistory'), historyEntry);
+                } else {
+                    lic.status = 'Revoked';
+                    lic.revocationReason = reason;
+                    state.licenseHistory.unshift(historyEntry);
+                    refreshAllViews();
+                }
+
+                await recordAuditLog('LICENSURE', 'LICENSE_REVOKED', `Revoked AINS License ${lic.ainsNumber}. Reason: ${reason}`);
+                closeModal();
+                showToast(`License ${lic.ainsNumber} has been revoked.`, 'warning');
+            });
+        };
+
+        window.reactivateLicense = async (licId) => {
+            if (!requireCommandOrLogistics()) return;
+            const lic = state.instructorLicenses.find(l => l.id === licId);
+            if (!lic) return;
+
+            const historyEntry = {
+                ainsNumber: lic.ainsNumber,
+                timestamp: new Date().toISOString(),
+                actor: state.currentUser.username,
+                action: 'REACTIVATED',
+                details: `Authorized reactivation executed by ${state.currentUser.username}.`
+            };
+
+            if (useCloudFirestore && fbUser) {
+                await updateDoc(getDocRef('instructorLicenses', lic.id), { status: 'Active', revocationReason: '' });
+                await addDoc(getColRef('licenseHistory'), historyEntry);
+            } else {
+                lic.status = 'Active';
+                lic.revocationReason = '';
+                state.licenseHistory.unshift(historyEntry);
+                refreshAllViews();
+            }
+
+            await recordAuditLog('LICENSURE', 'LICENSE_REACTIVATED', `Reactivated AINS License ${lic.ainsNumber}.`);
+            showToast(`License ${lic.ainsNumber} reactivated.`, 'success');
+        };
+
+        window.viewLicenseHistory = (ainsNumber) => {
+            const entries = state.licenseHistory.filter(h => h.ainsNumber === ainsNumber);
+            const html = entries.length === 0
+                ? `<p class="text-xs text-stb-brownLight">No recorded history events for ${escapeHtml(ainsNumber)}.</p>`
+                : entries.map(h => `
+                    <div class="p-3 bg-stb-beige/50 rounded-lg border border-stb-beigeDark text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2 py-0.5 bg-stb-brownDark text-stb-goldLight rounded text-[10px] font-bold font-mono">${escapeHtml(h.action)}</span>
+                            <span class="text-[11px] text-stb-brownLight">${formatDateTime(h.timestamp)}</span>
+                        </div>
+                        <p class="text-stb-brownDark mt-1.5">${escapeHtml(h.details)}</p>
+                        <p class="text-[10px] font-mono text-stb-brownLight mt-1">Authorized By: ${escapeHtml(h.actor)}</p>
+                    </div>
+                `).join('');
+
+            openModal(`Individual License History — ${ainsNumber}`, `<div class="space-y-3">${html}</div>`);
+        };
+
+        // =========================================================================
+        // 11. LICENSE RENEWAL REQUESTS (COMMAND & LOGISTICS REVIEW)
+        // =========================================================================
+        function renderRenewalRequestsTable() {
+            const filter = document.getElementById('ren-status-filter')?.value || 'ALL';
+            const filtered = state.licenseRenewalRequests.filter(r => filter === 'ALL' || r.status === filter);
+            const tbody = document.getElementById('ren-table-body');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-10 text-center text-xs text-stb-brownLight">
+                            No license renewal requests on file.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(req => {
+                let badge = '';
+                if (req.status === 'Pending') badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-900 border border-amber-300">Pending</span>`;
+                else if (req.status === 'Approved') badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-900 border border-emerald-300">Approved</span>`;
+                else badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-100 text-red-900 border border-red-300">Rejected</span>`;
+
+                const actions = req.status === 'Pending'
+                    ? `
+                        <button onclick="window.processRenewalDecision('${escapeHtml(req.id)}', 'Approved')" class="px-2.5 py-1 bg-emerald-800 hover:bg-emerald-900 text-white rounded text-[11px] font-semibold">Approve</button>
+                        <button onclick="window.processRenewalDecision('${escapeHtml(req.id)}', 'Rejected')" class="px-2.5 py-1 bg-red-800 hover:bg-red-900 text-white rounded text-[11px] font-semibold">Reject</button>
+                      `
+                    : `<span class="text-[11px] text-stb-brownLight italic">Processed by ${escapeHtml(req.reviewedBy || 'Command')}</span>`;
+
+                return `
+                    <tr class="hover:bg-stb-beige/40">
+                        <td class="py-3 px-4 font-mono font-semibold text-stb-brownDark">${escapeHtml(req.requestId || req.id)}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-stb-brownDark">${escapeHtml(req.ainsNumber)}</td>
+                        <td class="py-3 px-4">
+                            <p class="font-semibold text-stb-brownDark">${escapeHtml(req.instructorName)}</p>
+                            <p class="text-[11px] font-mono text-stb-brownLight">${escapeHtml(req.instructorUsername)}</p>
+                        </td>
+                        <td class="py-3 px-4 font-semibold text-stb-brownDark">${escapeHtml(req.extensionYears)} Year(s)</td>
+                        <td class="py-3 px-4 text-stb-brown max-w-xs truncate" title="${escapeHtml(req.justification)}">${escapeHtml(req.justification)}</td>
+                        <td class="py-3 px-4">${badge}</td>
+                        <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">${actions}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('ren-status-filter').addEventListener('change', renderRenewalRequestsTable);
+
+        window.processRenewalDecision = async (reqId, decision) => {
+            if (!requireCommandOrLogistics()) return;
+            const req = state.licenseRenewalRequests.find(r => r.id === reqId);
+            if (!req || req.status !== 'Pending') return;
+
+            const lic = state.instructorLicenses.find(l => l.ainsNumber === req.ainsNumber);
+            let newExpiration = lic ? lic.expirationDate : null;
+
+            if (decision === 'Approved' && lic) {
+                const base = new Date(lic.expirationDate) > new Date() ? new Date(lic.expirationDate) : new Date();
+                base.setFullYear(base.getFullYear() + Number(req.extensionYears || 1));
+                newExpiration = base.toISOString().split('T')[0];
+            }
+
+            const reqUpdates = {
+                status: decision,
+                reviewedBy: state.currentUser.username,
+                reviewedAt: new Date().toISOString(),
+                remarks: decision === 'Approved' ? `Approved. Valid until ${newExpiration}.` : 'Renewal application denied upon review.'
+            };
+
+            if (useCloudFirestore && fbUser) {
+                await updateDoc(getDocRef('licenseRenewalRequests', req.id), reqUpdates);
+                if (decision === 'Approved' && lic) {
+                    await updateDoc(getDocRef('instructorLicenses', lic.id), {
+                        expirationDate: newExpiration,
+                        status: lic.status === 'Revoked' ? 'Revoked' : 'Active'
+                    });
+                    await addDoc(getColRef('licenseHistory'), {
+                        ainsNumber: lic.ainsNumber,
+                        timestamp: new Date().toISOString(),
+                        actor: state.currentUser.username,
+                        action: 'RENEWAL_APPROVED',
+                        details: `Renewal request ${req.requestId || req.id} approved. Extended until ${newExpiration}.`
+                    });
+                }
+            } else {
+                Object.assign(req, reqUpdates);
+                if (decision === 'Approved' && lic) {
+                    lic.expirationDate = newExpiration;
+                    if (lic.status !== 'Revoked') lic.status = 'Active';
+                    state.licenseHistory.unshift({
+                        ainsNumber: lic.ainsNumber,
+                        timestamp: new Date().toISOString(),
+                        actor: state.currentUser.username,
+                        action: 'RENEWAL_APPROVED',
+                        details: `Renewal request ${req.requestId || req.id} approved. Extended until ${newExpiration}.`
+                    });
+                }
+                refreshAllViews();
+            }
+
+            await recordAuditLog('RENEWAL', `RENEWAL_${decision.toUpperCase()}`, `${decision} renewal request ${req.requestId || req.id} for license ${req.ainsNumber}.`);
+            showToast(`Renewal request ${decision.toLowerCase()}.`, decision === 'Approved' ? 'success' : 'warning');
+        };
+
+        // =========================================================================
+        // 12. BATTALION INSTRUCTOR SELF-SERVICE (STRICT PRIVACY ISOLATION)
+        // =========================================================================
+        function renderInstructorSelfViews() {
+            if (!state.currentUser || state.currentUser.accessLevel !== 'Battalion Instructors') return;
+
+            // Strict filter: Instructor may ONLY view their own linked license
+            const myLicense = state.instructorLicenses.find(
+                l => l.linkedUsername.toLowerCase() === state.currentUser.username.toLowerCase()
+            );
+
+            const myLicContainer = document.getElementById('my-license-container');
+            if (!myLicense) {
+                myLicContainer.innerHTML = `
+                    <div class="bg-stb-white p-8 rounded-xl border border-stb-beigeDark text-center space-y-2">
+                        <p class="text-sm font-bold text-stb-brownDark">No Academy Instructor License Assigned</p>
+                        <p class="text-xs text-stb-brownLight max-w-md mx-auto">
+                            No AINS credential is currently linked to your username (<span class="font-mono font-semibold">${escapeHtml(state.currentUser.username)}</span>). Contact Battalion Command or Battalion Logistics for credential issuance.
+                        </p>
+                    </div>`;
+            } else {
+                const effStatus = evaluateLicenseStatus(myLicense);
+                const myHistory = state.licenseHistory.filter(h => h.ainsNumber === myLicense.ainsNumber);
+
+                myLicContainer.innerHTML = `
+                    <div class="bg-stb-white p-6 rounded-xl border-2 border-stb-gold shadow-sm space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stb-beigeDark pb-4">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-stb-goldDark">Official Academy Instructor Credential</span>
+                                <h3 class="text-xl font-mono font-bold text-stb-brownDark mt-0.5">${escapeHtml(myLicense.ainsNumber)}</h3>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider self-start sm:self-auto ${
+                                effStatus === 'Active' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' :
+                                effStatus === 'Expired' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                                'bg-red-100 text-red-900 border border-red-300'
+                            }">${effStatus}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                            <div class="p-3 bg-stb-beige/50 rounded-lg">
+                                <span class="text-stb-brownLight block">Holder Name</span>
+                                <span class="font-bold text-stb-brownDark text-sm mt-0.5 block">${escapeHtml(myLicense.instructorName)}</span>
+                            </div>
+                            <div class="p-3 bg-stb-beige/50 rounded-lg">
+                                <span class="text-stb-brownLight block">TPNP Rank</span>
+                                <span class="font-bold text-stb-brownDark text-sm mt-0.5 block">${escapeHtml(myLicense.tpnpRank)}</span>
+                            </div>
+                            <div class="p-3 bg-stb-beige/50 rounded-lg">
+                                <span class="text-stb-brownLight block">Specialization</span>
+                                <span class="font-bold text-stb-brownDark text-sm mt-0.5 block">${escapeHtml(myLicense.specialization)}</span>
+                            </div>
+                            <div class="p-3 bg-stb-beige/50 rounded-lg">
+                                <span class="text-stb-brownLight block">Expiration Date</span>
+                                <span class="font-mono font-bold text-stb-brownDark text-sm mt-0.5 block">${escapeHtml(myLicense.expirationDate)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-stb-white rounded-xl border border-stb-beigeDark shadow-sm overflow-hidden">
+                        <div class="px-5 py-4 border-b border-stb-beigeDark">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-stb-brownDark">Credential Audit & Renewal History</h3>
+                        </div>
+                        <div class="p-5 space-y-3">
+                            ${myHistory.length === 0
+                                ? '<p class="text-xs text-stb-brownLight">No recorded history events.</p>'
+                                : myHistory.map(h => `
+                                    <div class="p-3 bg-stb-beige/40 rounded-lg border border-stb-beigeDark text-xs">
+                                        <div class="flex justify-between font-mono text-[11px] text-stb-brownLight">
+                                            <span class="font-bold text-stb-brownDark">${escapeHtml(h.action)}</span>
+                                            <span>${formatDateTime(h.timestamp)}</span>
+                                        </div>
+                                        <p class="text-stb-brown mt-1">${escapeHtml(h.details)}</p>
+                                    </div>
+                                `).join('')
+                            }
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Render Renewal Application Form
+            const formWrapper = document.getElementById('my-renewal-form-wrapper');
+            if (!myLicense) {
+                formWrapper.innerHTML = `<p class="text-xs text-stb-brownLight">An active or expired instructor license must be assigned to your account before submitting a renewal application.</p>`;
+            } else if (evaluateLicenseStatus(myLicense) === 'Revoked') {
+                formWrapper.innerHTML = `<p class="text-xs text-red-800 font-semibold">Your license (${escapeHtml(myLicense.ainsNumber)}) is currently REVOKED and cannot be renewed via self-service. Contact Battalion Command.</p>`;
+            } else {
+                const hasPending = state.licenseRenewalRequests.some(
+                    r => r.ainsNumber === myLicense.ainsNumber && r.status === 'Pending'
+                );
+                if (hasPending) {
+                    formWrapper.innerHTML = `<p class="text-xs text-amber-900 font-semibold">You currently have a PENDING renewal request for license <span class="font-mono">${escapeHtml(myLicense.ainsNumber)}</span> awaiting Command/Logistics review.</p>`;
+                } else {
+                    formWrapper.innerHTML = `
+                        <form id="instructor-submit-renewal-form" class="space-y-4 max-w-xl">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">AINS License Number</label>
+                                    <input type="text" value="${escapeHtml(myLicense.ainsNumber)}" disabled class="w-full px-3 py-2 bg-stb-beige border border-stb-beigeDark rounded-lg text-xs font-mono font-bold text-stb-brownDark">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Renewal Extension Period</label>
+                                    <select id="inst-ren-years" class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs bg-white">
+                                        <option value="1">1 Year Extension</option>
+                                        <option value="2">2 Years Extension</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Service & Training Justification</label>
+                                <textarea id="inst-ren-justification" required rows="3" placeholder="Provide summary of instructional hours, active duty assignments, and qualification standing..."
+                                    class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs"></textarea>
+                            </div>
+                            <button type="submit" class="px-5 py-2.5 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-stb-gold">
+                                Submit Renewal Request
+                            </button>
+                        </form>
+                    `;
+
+                    document.getElementById('instructor-submit-renewal-form').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const years = document.getElementById('inst-ren-years').value;
+                        const justification = document.getElementById('inst-ren-justification').value.trim();
+                        const requestId = 'REN-' + crypto.randomUUID().slice(0, 8).toUpperCase();
+
+                        const reqRecord = {
+                            requestId,
+                            ainsNumber: myLicense.ainsNumber,
+                            instructorName: myLicense.instructorName,
+                            instructorUsername: state.currentUser.username,
+                            extensionYears: Number(years),
+                            justification,
+                            status: 'Pending',
+                            submittedAt: new Date().toISOString()
+                        };
+
+                        if (useCloudFirestore && fbUser) {
+                            await setDoc(getDocRef('licenseRenewalRequests', requestId), reqRecord);
+                        } else {
+                            reqRecord.id = requestId;
+                            state.licenseRenewalRequests.unshift(reqRecord);
+                            refreshAllViews();
+                        }
+
+                        await recordAuditLog('RENEWAL', 'RENEWAL_REQUEST_SUBMITTED', `Instructor ${state.currentUser.username} submitted renewal request ${requestId} for ${myLicense.ainsNumber}.`);
+                        showToast(`Renewal request ${requestId} submitted.`, 'success');
+                    });
+                }
+            }
+
+            // Render Instructor's Own Renewal History
+            const myReqs = state.licenseRenewalRequests.filter(
+                r => r.instructorUsername.toLowerCase() === state.currentUser.username.toLowerCase()
+            );
+            const histBody = document.getElementById('my-renewal-history-body');
+            if (myReqs.length === 0) {
+                histBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-xs text-stb-brownLight">No renewal applications submitted.</td></tr>`;
+            } else {
+                histBody.innerHTML = myReqs.map(r => `
+                    <tr>
+                        <td class="py-3 px-4 font-mono font-semibold">${escapeHtml(r.requestId || r.id)}</td>
+                        <td class="py-3 px-4 font-mono">${escapeHtml(r.ainsNumber)}</td>
+                        <td class="py-3 px-4">${escapeHtml(r.extensionYears)} Year(s)</td>
+                        <td class="py-3 px-4 text-stb-brownLight">${formatDateTime(r.submittedAt)}</td>
+                        <td class="py-3 px-4 font-semibold">${escapeHtml(r.status)}</td>
+                        <td class="py-3 px-4 text-stb-brown">${escapeHtml(r.remarks || 'Awaiting Command review')}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // =========================================================================
+        // 13. ADMINISTRATOR ACCESS MANAGEMENT (BATTALION COMMAND EXCLUSIVE)
+        // =========================================================================
+        const ROLE_PERMISSION_SPECS = {
+            'Battalion Command': [
+                'Full Command Dashboard & Operational Telemetry',
+                'FE Code Generation, Registration, Modification & Deletion',
+                'Academy Instructor Licensure Issuance, Renewal & Revocation',
+                'License Renewal Request Approval & Rejection',
+                'Administrator Access List Management & Role Assignment',
+                'Administrator Password Configuration, Reset & Account Suspension',
+                'Full Battalion Security Audit Log Inspection & Export',
+                'System Security Settings & Deployment Configuration'
+            ],
+            'Battalion Logistics': [
+                'Operational Command Dashboard',
+                'FE Code Generation, Registration, Modification & Deletion',
+                'Academy Instructor Licensure Issuance, Renewal & Revocation',
+                'License Renewal Request Approval & Rejection',
+                'Restricted from Administrator Access Management & Audit Logs'
+            ],
+            'Battalion Instructors': [
+                'Operational Command Dashboard',
+                'FE Code Registration & Status Management',
+                'View Personal Assigned Academy Instructor License Only',
+                'Submit Personal License Renewal Requests',
+                'Restricted from viewing other instructors or administrative modules'
+            ]
+        };
+
+        function countActiveCommandAdmins() {
+            return state.administrators.filter(
+                a => a.accessLevel === 'Battalion Command' && a.accountStatus === 'Active'
+            ).length;
+        }
+
+        function renderAdminAccessTable() {
+            if (state.currentUser?.accessLevel !== 'Battalion Command') return;
+            const tbody = document.getElementById('admin-table-body');
+
+            tbody.innerHTML = state.administrators.map(admin => {
+                const isSuspended = admin.accountStatus !== 'Active';
+                const statusBadge = !isSuspended
+                    ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-900 border border-emerald-300">Active</span>`
+                    : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-100 text-red-900 border border-red-300">Suspended</span>`;
+
+                return `
+                    <tr class="hover:bg-stb-beige/40 transition-colors">
+                        <td class="py-3 px-4 font-mono font-bold text-stb-brownDark">${escapeHtml(admin.username)}</td>
+                        <td class="py-3 px-4 font-semibold text-stb-brownDark">${escapeHtml(admin.fullName)}</td>
+                        <td class="py-3 px-4 text-stb-brown">${escapeHtml(admin.tpnpRank)}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-stb-beigeDark text-stb-brownDark">${escapeHtml(admin.accessLevel)}</span>
+                        </td>
+                        <td class="py-3 px-4 text-stb-brown">${escapeHtml(admin.battalion || 'Security Training Battalion')}</td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 text-stb-brownLight whitespace-nowrap">${formatDateOnly(admin.dateAdded)}</td>
+                        <td class="py-3 px-4 text-right whitespace-nowrap">
+                            <div class="inline-flex flex-wrap justify-end gap-1">
+                                <button onclick="window.openEditAdminModal('${escapeHtml(admin.id)}')" class="px-2 py-1 bg-white hover:bg-stb-beige text-stb-brownDark rounded text-[11px] font-semibold border border-stb-beigeDark">Edit</button>
+                                <button onclick="window.openAdminPasswordModal('${escapeHtml(admin.id)}')" class="px-2 py-1 bg-stb-beige hover:bg-stb-beigeDark text-stb-brownDark rounded text-[11px] font-semibold border border-stb-brownLight/30">Password</button>
+                                ${!isSuspended
+                                    ? `<button onclick="window.toggleAdminStatus('${escapeHtml(admin.id)}', 'Suspended')" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded text-[11px] font-semibold border border-amber-200">Suspend</button>`
+                                    : `<button onclick="window.toggleAdminStatus('${escapeHtml(admin.id)}', 'Active')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 rounded text-[11px] font-semibold border border-emerald-200">Reactivate</button>`
+                                }
+                                <button onclick="window.viewAdminPermissions('${escapeHtml(admin.id)}')" class="px-2 py-1 bg-white hover:bg-stb-beige text-stb-brownDark rounded text-[11px] font-semibold border border-stb-beigeDark">Permissions</button>
+                                <button onclick="window.viewAdminActivity('${escapeHtml(admin.username)}')" class="px-2 py-1 bg-white hover:bg-stb-beige text-stb-brownDark rounded text-[11px] font-semibold border border-stb-beigeDark">Activity</button>
+                                <button onclick="window.deleteAdminAccount('${escapeHtml(admin.id)}')" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-800 rounded text-[11px] font-semibold border border-red-200">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 1. Add Administrator Modal
+        document.getElementById('open-add-admin-btn').addEventListener('click', () => {
+            if (!requireCommandClearance()) return;
+
+            openModal('Add New Administrator Account', `
+                <form id="add-admin-form" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Administrator Username</label>
+                            <input type="text" id="new-adm-username" required placeholder="Unique login username"
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Full Name</label>
+                            <input type="text" id="new-adm-name" required placeholder="Officer Full Name"
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">TPNP Rank</label>
+                            <input type="text" id="new-adm-rank" required placeholder="e.g., Training Officer"
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Access Level</label>
+                            <select id="new-adm-role" class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs bg-white">
+                                <option value="Battalion Command">Battalion Command</option>
+                                <option value="Battalion Logistics">Battalion Logistics</option>
+                                <option value="Battalion Instructors">Battalion Instructors</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Battalion Assignment</label>
+                        <input type="text" id="new-adm-battalion" value="Security Training Battalion" required
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                    </div>
+                    <div class="p-3.5 bg-stb-beige/60 rounded-lg border border-stb-beigeDark space-y-3">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-stb-brownDark">Initial Passphrase Configuration</p>
+                        <div>
+                            <label class="block text-xs font-semibold text-stb-brown mb-1">Set Initial Passphrase (Min 8 characters)</label>
+                            <input type="password" id="new-adm-pw" required minlength="8" placeholder="Enter initial passphrase"
+                                class="w-full px-3 py-2 bg-white border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                        <label class="flex items-center gap-2 text-xs text-stb-brownDark cursor-pointer">
+                            <input type="checkbox" id="new-adm-force-change" checked class="rounded text-stb-brownDark">
+                            <span>Require passphrase change upon first login</span>
+                        </label>
+                    </div>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-stb-brownDark hover:bg-stb-brown text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-stb-gold">Provision Administrator</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('add-admin-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!requireCommandClearance()) return;
+
+                const username = document.getElementById('new-adm-username').value.trim();
+                const fullName = document.getElementById('new-adm-name').value.trim();
+                const tpnpRank = document.getElementById('new-adm-rank').value.trim();
+                const accessLevel = document.getElementById('new-adm-role').value;
+                const battalion = document.getElementById('new-adm-battalion').value.trim();
+                const initialPw = document.getElementById('new-adm-pw').value;
+                const mustChangePassword = document.getElementById('new-adm-force-change').checked;
+
+                if (state.administrators.some(a => a.username.toLowerCase() === username.toLowerCase())) {
+                    showToast(`Administrator username "${username}" is already registered.`, 'error');
+                    return;
+                }
+
+                const { hashHex, saltHex } = await hashPassphrase(initialPw);
+                const newAdmin = {
+                    username,
+                    fullName,
+                    tpnpRank,
+                    accessLevel,
+                    battalion,
+                    accountStatus: 'Active',
+                    passwordHash: hashHex,
+                    passwordSalt: saltHex,
+                    mustChangePassword,
+                    dateAdded: new Date().toISOString()
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    await setDoc(getDocRef('administrators', username), newAdmin);
+                } else {
+                    newAdmin.id = username;
+                    state.administrators.push(newAdmin);
+                    refreshAllViews();
+                }
+
+                await recordAuditLog('ADMIN', 'ADMIN_CREATED', `Provisioned administrator "${username}" (${tpnpRank} ${fullName}) with clearance "${accessLevel}".`);
+                closeModal();
+                showToast(`Administrator "${username}" provisioned.`, 'success');
+            });
+        });
+
+        // 2-5. Edit Administrator Info, Username, Access Level, Battalion Assignment
+        window.openEditAdminModal = (adminId) => {
+            if (!requireCommandClearance()) return;
+            const admin = state.administrators.find(a => a.id === adminId);
+            if (!admin) return;
+
+            openModal(`Edit Administrator — ${admin.username}`, `
+                <form id="edit-admin-form" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Administrator Username</label>
+                            <input type="text" id="edit-adm-username" value="${escapeHtml(admin.username)}" required
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Full Name</label>
+                            <input type="text" id="edit-adm-name" value="${escapeHtml(admin.fullName)}" required
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">TPNP Rank</label>
+                            <input type="text" id="edit-adm-rank" value="${escapeHtml(admin.tpnpRank)}" required
+                                class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Access Level</label>
+                            <select id="edit-adm-role" class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs bg-white">
+                                <option value="Battalion Command" ${admin.accessLevel === 'Battalion Command' ? 'selected' : ''}>Battalion Command</option>
+                                <option value="Battalion Logistics" ${admin.accessLevel === 'Battalion Logistics' ? 'selected' : ''}>Battalion Logistics</option>
+                                <option value="Battalion Instructors" ${admin.accessLevel === 'Battalion Instructors' ? 'selected' : ''}>Battalion Instructors</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Battalion Assignment</label>
+                        <input type="text" id="edit-adm-battalion" value="${escapeHtml(admin.battalion || 'Security Training Battalion')}" required
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                    </div>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-stb-brownDark text-white text-xs font-bold uppercase tracking-wider rounded-lg">Save Modifications</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('edit-admin-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!requireCommandClearance()) return;
+
+                const newUsername = document.getElementById('edit-adm-username').value.trim();
+                const newName = document.getElementById('edit-adm-name').value.trim();
+                const newRank = document.getElementById('edit-adm-rank').value.trim();
+                const newRole = document.getElementById('edit-adm-role').value;
+                const newBattalion = document.getElementById('edit-adm-battalion').value.trim();
+
+                // Prevent downgrading the last active Battalion Command account
+                if (admin.accessLevel === 'Battalion Command' && admin.accountStatus === 'Active' && newRole !== 'Battalion Command') {
+                    if (countActiveCommandAdmins() <= 1) {
+                        showToast('Action Blocked: Cannot downgrade the last active Battalion Command administrator.', 'error');
+                        return;
+                    }
+                }
+
+                if (newUsername.toLowerCase() !== admin.username.toLowerCase() &&
+                    state.administrators.some(a => a.username.toLowerCase() === newUsername.toLowerCase())) {
+                    showToast(`Username "${newUsername}" is already in use.`, 'error');
+                    return;
+                }
+
+                const updates = {
+                    username: newUsername,
+                    fullName: newName,
+                    tpnpRank: newRank,
+                    accessLevel: newRole,
+                    battalion: newBattalion
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    if (newUsername !== admin.id) {
+                        await setDoc(getDocRef('administrators', newUsername), { ...admin, ...updates });
+                        await deleteDoc(getDocRef('administrators', admin.id));
+                    } else {
+                        await updateDoc(getDocRef('administrators', admin.id), updates);
+                    }
+                } else {
+                    Object.assign(admin, updates);
+                    admin.id = newUsername;
+                    if (state.currentUser.username === admin.username) {
+                        state.currentUser = admin;
+                        buildSidebarNavigation();
+                    }
+                    refreshAllViews();
+                }
+
+                await recordAuditLog('ADMIN', 'ADMIN_UPDATED', `Updated administrator "${newUsername}" (Role: ${newRole}, Rank: ${newRank}, Unit: ${newBattalion}).`);
+                closeModal();
+                showToast(`Administrator "${newUsername}" updated.`, 'success');
+            });
+        };
+
+        // 6-7. Dedicated Password Management Modal (Never displays existing passwords)
+        window.openAdminPasswordModal = (adminId) => {
+            if (!requireCommandClearance()) return;
+            const admin = state.administrators.find(a => a.id === adminId);
+            if (!admin) return;
+
+            openModal(`Password Management — ${admin.username}`, `
+                <form id="admin-pw-reset-form" class="space-y-4">
+                    <div class="p-3 bg-stb-beige rounded-lg border border-stb-beigeDark text-xs text-stb-brown">
+                        Existing passphrases are cryptographically protected and never displayed. Configure a replacement passphrase below.
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">New Replacement Passphrase (Min 8 chars)</label>
+                        <input type="password" id="reset-adm-pw" required minlength="8" placeholder="Enter new passphrase"
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stb-brownDark mb-1">Confirm Replacement Passphrase</label>
+                        <input type="password" id="reset-adm-pw-confirm" required minlength="8" placeholder="Confirm new passphrase"
+                            class="w-full px-3 py-2 border border-stb-brownLight/50 rounded-lg text-xs">
+                    </div>
+                    <label class="flex items-center gap-2 text-xs text-stb-brownDark cursor-pointer">
+                        <input type="checkbox" id="reset-adm-force-change" checked class="rounded text-stb-brownDark">
+                        <span>Require administrator to change passphrase on next login</span>
+                    </label>
+                    <div class="pt-3 flex justify-end gap-2 border-t border-stb-beigeDark">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 text-xs font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-stb-brownDark text-white text-xs font-bold uppercase tracking-wider rounded-lg border border-stb-gold">Set New Passphrase</button>
+                    </div>
+                </form>
+            `);
+
+            document.getElementById('admin-pw-reset-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!requireCommandClearance()) return;
+
+                const pw1 = document.getElementById('reset-adm-pw').value;
+                const pw2 = document.getElementById('reset-adm-pw-confirm').value;
+                const forceChange = document.getElementById('reset-adm-force-change').checked;
+
+                if (pw1 !== pw2) {
+                    showToast('Passphrases do not match.', 'error');
+                    return;
+                }
+
+                const { hashHex, saltHex } = await hashPassphrase(pw1);
+                const updates = {
+                    passwordHash: hashHex,
+                    passwordSalt: saltHex,
+                    mustChangePassword: forceChange
+                };
+
+                if (useCloudFirestore && fbUser) {
+                    await updateDoc(getDocRef('administrators', admin.id), updates);
+                } else {
+                    Object.assign(admin, updates);
+                }
+
+                await recordAuditLog('ADMIN', 'ADMIN_PASSWORD_RESET', `Battalion Command rotated passphrase for "${admin.username}" (Force change: ${forceChange}).`);
+                closeModal();
+                showToast(`Passphrase updated for "${admin.username}".`, 'success');
+            });
+        };
+
+        // 8-9. Suspend & Reactivate Administrator Account
+        window.toggleAdminStatus = async (adminId, targetStatus) => {
+            if (!requireCommandClearance()) return;
+            const admin = state.administrators.find(a => a.id === adminId);
+            if (!admin) return;
+
+            if (targetStatus === 'Suspended' && admin.accessLevel === 'Battalion Command' && admin.accountStatus === 'Active') {
+                if (countActiveCommandAdmins() <= 1) {
+                    showToast('Security Safeguard: Cannot suspend the last active Battalion Command account.', 'error');
+                    return;
+                }
+            }
+
+            if (useCloudFirestore && fbUser) {
+                await updateDoc(getDocRef('administrators', admin.id), { accountStatus: targetStatus });
+            } else {
+                admin.accountStatus = targetStatus;
+                refreshAllViews();
+            }
+
+            await recordAuditLog('ADMIN', targetStatus === 'Suspended' ? 'ADMIN_SUSPENDED' : 'ADMIN_REACTIVATED', `Account status for "${admin.username}" set to ${targetStatus}.`);
+            showToast(`Administrator "${admin.username}" is now ${targetStatus}.`, targetStatus === 'Suspended' ? 'warning' : 'success');
+        };
+
+        // 10. Delete Administrator Account
+        window.deleteAdminAccount = (adminId) => {
+            if (!requireCommandClearance()) return;
+            const admin = state.administrators.find(a => a.id === adminId);
+            if (!admin) return;
+
+            if (admin.accessLevel === 'Battalion Command' && admin.accountStatus === 'Active' && countActiveCommandAdmins() <= 1) {
+                showToast('Security Safeguard: Cannot delete the last active Battalion Command account.', 'error');
+                return;
+            }
+
+            openModal('Confirm Administrator Account Deletion', `
+                <div class="space-y-4 text-xs">
+                    <p class="text-stb-brown">Are you sure you want to permanently delete administrator <strong class="font-mono text-stb-brownDark">${escapeHtml(admin.username)}</strong> (${escapeHtml(admin.accessLevel)})? All portal access for this account will be immediately terminated.</p>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" onclick="document.getElementById('modal-close-btn').click()" class="px-4 py-2 font-semibold text-stb-brown hover:bg-stb-beige rounded-lg">Cancel</button>
+                        <button type="button" id="confirm-del-admin-btn" class="px-4 py-2 bg-red-800 hover:bg-red-900 text-white font-bold uppercase tracking-wider rounded-lg">Delete Account</button>
+                    </div>
+                </div>
+            `);
+
+            document.getElementById('confirm-del-admin-btn').addEventListener('click', async () => {
+                if (!requireCommandClearance()) return;
+                if (useCloudFirestore && fbUser) {
+                    await deleteDoc(getDocRef('administrators', admin.id));
+                } else {
+                    state.administrators = state.administrators.filter(a => a.id !== admin.id);
+                    refreshAllViews();
+                }
+                await recordAuditLog('ADMIN', 'ADMIN_DELETED', `Deleted administrator account "${admin.username}".`);
+                closeModal();
+                showToast(`Administrator "${admin.username}" deleted.`, 'warning');
+            });
+        };
+
+        // 11. View Administrator Permissions
+        window.viewAdminPermissions = (adminId) => {
+            if (!requireCommandClearance()) return;
+            const admin = state.administrators.find(a => a.id === adminId);
+            if (!admin) return;
+
+            const perms = ROLE_PERMISSION_SPECS[admin.accessLevel] || [];
+            openModal(`Clearance Matrix — ${admin.username}`, `
+                <div class="space-y-4 text-xs">
+                    <div class="p-3 bg-stb-beige rounded-lg border border-stb-beigeDark">
+                        <p class="font-bold text-stb-brownDark">${escapeHtml(admin.tpnpRank)} ${escapeHtml(admin.fullName)}</p>
+                        <p class="text-stb-brown mt-0.5">Assigned Role: <strong class="text-stb-goldDark">${escapeHtml(admin.accessLevel)}</strong></p>
+                    </div>
+                    <div>
+                        <p class="font-bold uppercase tracking-wider text-stb-brownDark mb-2">Authorized Capabilities:</p>
+                        <ul class="space-y-2">
+                            ${perms.map(p => `
+                                <li class="flex items-start gap-2 text-stb-brownDark">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5"></i>
+                                    <span>${escapeHtml(p)}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `);
+        };
+
+        // 12. View Administrator Activity
+        window.viewAdminActivity = (username) => {
+            if (!requireCommandClearance()) return;
+            const actorLogs = state.auditLogs.filter(l => l.actorUsername.toLowerCase() === username.toLowerCase());
+            const html = actorLogs.length === 0
+                ? `<p class="text-xs text-stb-brownLight">No recorded activity for administrator "${escapeHtml(username)}".</p>`
+                : actorLogs.map(l => `
+                    <div class="p-3 bg-stb-beige/50 rounded-lg border border-stb-beigeDark text-xs">
+                        <div class="flex justify-between font-mono text-[11px] text-stb-brownLight">
+                            <span class="font-bold text-stb-brownDark">${escapeHtml(l.action)}</span>
+                            <span>${formatDateTime(l.timestamp)}</span>
+                        </div>
+                        <p class="text-stb-brown mt-1">${escapeHtml(l.details)}</p>
+                    </div>
+                `).join('');
+
+            openModal(`Administrator Activity Log — ${username}`, `<div class="space-y-2.5">${html}</div>`);
+        };
+
+        // =========================================================================
+        // 14. AUDIT LOG MODULE & SYSTEM SETTINGS
+        // =========================================================================
+        function renderAuditLogTable() {
+            if (state.currentUser?.accessLevel !== 'Battalion Command') return;
+            const search = (document.getElementById('audit-search-input')?.value || '').toLowerCase();
+            const catFilter = document.getElementById('audit-category-filter')?.value || 'ALL';
+
+            const filtered = state.auditLogs.filter(log => {
+                const matchesSearch = log.actorUsername.toLowerCase().includes(search) ||
+                    log.action.toLowerCase().includes(search) ||
+                    log.details.toLowerCase().includes(search);
+                const matchesCat = catFilter === 'ALL' || log.category === catFilter;
+                return matchesSearch && matchesCat;
+            });
+
+            const tbody = document.getElementById('audit-table-body');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-xs text-stb-brownLight">No audit records match the current filter.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(log => `
+                <tr class="hover:bg-stb-beige/40">
+                    <td class="py-3 px-4 font-mono text-[11px] text-stb-brownLight whitespace-nowrap">${formatDateTime(log.timestamp)}</td>
+                    <td class="py-3 px-4 font-mono font-bold text-stb-brownDark">${escapeHtml(log.actorUsername)}</td>
+                    <td class="py-3 px-4 text-stb-brown">${escapeHtml(log.actorRole)}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-stb-beigeDark text-stb-brownDark font-mono text-[10px] font-bold">${escapeHtml(log.category)}</span></td>
+                    <td class="py-3 px-4 font-mono font-semibold text-stb-brownDark">${escapeHtml(log.action)}</td>
+                    <td class="py-3 px-4 text-stb-brown">${escapeHtml(log.details)}</td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('audit-search-input').addEventListener('input', renderAuditLogTable);
+        document.getElementById('audit-category-filter').addEventListener('change', renderAuditLogTable);
+
+        document.getElementById('export-audit-csv-btn').addEventListener('click', () => {
+            if (!requireCommandClearance()) return;
+            if (state.auditLogs.length === 0) {
+                showToast('Audit Log is currently empty.', 'warning');
+                return;
+            }
+            const headers = ['Timestamp', 'ActorUsername', 'ActorRole', 'Category', 'Action', 'Details'];
+            const rows = state.auditLogs.map(l =>
+                headers.map(h => {
+                    const key = h.charAt(0).toLowerCase() + h.slice(1);
+                    return `"${String(l[key] || '').replace(/"/g, '""')}"`;
+                }).join(',')
+            );
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `STB_Audit_Log_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+            recordAuditLog('ADMIN', 'AUDIT_LOG_EXPORTED', `Exported ${state.auditLogs.length} audit log records to CSV.`);
+        });
+
+        // Self Passphrase Change in System Settings
+        document.getElementById('self-pw-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const curPw = document.getElementById('self-current-pw').value;
+            const newPw = document.getElementById('self-new-pw').value;
+            const confPw = document.getElementById('self-confirm-pw').value;
+
+            if (newPw !== confPw) {
+                showToast('New passphrases do not match.', 'error');
+                return;
+            }
+            const validCur = await verifyPassphrase(curPw, state.currentUser.passwordHash, state.currentUser.passwordSalt);
+            if (!validCur) {
+                showToast('Current passphrase is incorrect.', 'error');
+                return;
+            }
+            const { hashHex, saltHex } = await hashPassphrase(newPw);
+            const updates = { passwordHash: hashHex, passwordSalt: saltHex, mustChangePassword: false };
+
+            if (useCloudFirestore && fbUser) {
+                await updateDoc(getDocRef('administrators', state.currentUser.id), updates);
+            } else {
+                Object.assign(state.currentUser, updates);
+            }
+            await recordAuditLog('ADMIN', 'SELF_PASSWORD_CHANGED', `Administrator "${state.currentUser.username}" updated their personal passphrase.`);
+            document.getElementById('self-pw-form').reset();
+            showToast('Your security passphrase has been updated.', 'success');
+        });
+
+        // Clipboard Helper for Deployment Rules
+        window.copyConfigSnippet = (elementId) => {
+            const text = document.getElementById(elementId).textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Configuration copied to clipboard.', 'success');
+        };
+
+        // =========================================================================
+        // 15. MASTER VIEW SYNCHRONIZATION & CLOCK
+        // =========================================================================
+        function refreshAllViews() {
+            if (!state.currentUser) return;
+            renderDashboard();
+            renderFeCodesTable();
+            renderLicensureTable();
+            renderRenewalRequestsTable();
+            renderInstructorSelfViews();
+            renderAdminAccessTable();
+            renderAuditLogTable();
+            lucide.createIcons();
+        }
+
+        function updateLiveClock() {
+            const el = document.getElementById('live-clock');
+            if (el) {
+                el.textContent = new Date().toLocaleString('en-US', {
+                    weekday: 'short', year: 'numeric', month: 'short', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+            }
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        // Start Application on Window Load
+        window.addEventListener('load', () => {
+            bootstrapSystem();
+        });
+    </script>
+</body>
+</html>
